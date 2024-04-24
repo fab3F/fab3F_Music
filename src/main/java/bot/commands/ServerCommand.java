@@ -1,12 +1,13 @@
 package bot.commands;
 
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-
 
 public interface ServerCommand {
 
-    boolean peformCommand(SlashCommandInteractionEvent event);
-    Permission getNeededPermission();
-    String getUsage();
+
+    boolean peformCommand(net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent event);
+    boolean isOnlyForServer();
+    net.dv8tion.jda.api.Permission[] getNeededPermissions();
+    default String getUsage() {
+        return "Benutze ```/{cmdName}```";
+    };
 }

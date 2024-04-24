@@ -1,6 +1,7 @@
 package bot;
 
 import bot.commands.*;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,7 +36,8 @@ public class CommandManager {
 
     public void perform(SlashCommandInteractionEvent e) {
 
-        ServerCommand cmd = this.commands.get(e.getName());
+        String cmdName = e.getName();
+        ServerCommand cmd = this.commands.get(cmdName);
 
         if(cmd == null) {
             e.reply("Dieser Befehl ist leider nicht verfügbar!").setEphemeral(true).queue();
@@ -47,18 +49,39 @@ public class CommandManager {
             return;
         }
 
-        if (!e.getMember().hasPermission(cmd.getNeededPermission())) {
-            e.reply("Du brauchst die Berechtigung " + cmd.getNeededPermission().getName() + ", um diesen Befehl auszuführen!").setEphemeral(true).queue();
+        if(cmd.isOnlyForServer() && !e.isFromGuild()){
+            e.reply("Dieser Befehl muss auf einem Server ausgeführt werden.").setEphemeral(true).queue();
             return;
         }
 
-        if (!cmd.peformCommand(e)) {
-            try {
-                e.reply(cmd.getUsage()).setEphemeral(true).queue();
-            } catch (Exception ex) {
-                e.reply("Ein unbekannter Fehler ist aufgetreten.").setEphemeral(true).queue();
+        boolean hasPerm = true;
+        StringBuilder neededPerms = new StringBuilder();
+        neededPerms.append("Dir fehlen eine oder mehrere der folgenden Berechtigungen, um diesen Befehl auszuführen: ").append("\n").append("```");
+        for(Permission p : cmd.getNeededPermissions()){
+            neededPerms.append(p.getName()).append("\n");
+            if(!e.getMember().hasPermission(p)){
+                hasPerm = false;
             }
         }
+        if(!hasPerm){
+            neededPerms.append("```");
+            e.reply(neededPerms.toString()).setEphemeral(true).queue();
+            return;
+        }
+
+
+        if (!cmd.peformCommand(e)) {
+            try {
+                e.reply(cmd.getUsage().replace("{cmdName}", cmdName)).setEphemeral(true).queue();
+                return;
+            } catch (Exception ex) {
+                e.reply("Ein unbekannter Fehler ist aufgetreten.").setEphemeral(true).queue();
+                return;
+            }
+        }
+
+        e.reply("Ein unbekannter Fehler ist aufgetreten.").setEphemeral(true).queue();
+        return;
 
     }
 

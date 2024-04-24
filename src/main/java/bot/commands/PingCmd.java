@@ -5,6 +5,11 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 public class PingCmd implements ServerCommand{
     @Override
+    public boolean isOnlyForServer() {
+        return false;
+    }
+
+    @Override
     public boolean peformCommand(SlashCommandInteractionEvent event) {
         long time = System.currentTimeMillis();
         event.getChannel().sendTyping().queue(v -> {
@@ -15,12 +20,7 @@ public class PingCmd implements ServerCommand{
     }
 
     @Override
-    public Permission getNeededPermission() {
-        return Permission.MESSAGE_SEND;
-    }
-
-    @Override
-    public String getUsage() {
-        return "Benutze ```/ping```";
+    public Permission[] getNeededPermissions() {
+        return new Permission[]{Permission.MESSAGE_SEND};
     }
 }

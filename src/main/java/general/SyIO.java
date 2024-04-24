@@ -6,9 +6,7 @@ import java.util.Scanner;
 public class SyIO {
     private static SyIO syIO = null;
     public static SyIO getSyIO(){
-        if (syIO == null) {
-            syIO = new SyIO();
-        }
+        syIO = syIO == null ? new SyIO() : syIO;
         return syIO;
     }
 

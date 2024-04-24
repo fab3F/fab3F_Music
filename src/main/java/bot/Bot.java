@@ -47,4 +47,10 @@ public class Bot {
         };
     }
 
+    public void destroy(){
+
+        shardManager.shutdown();
+
+    }
+
 }

@@ -2,8 +2,12 @@
 
 import bot.Bot;
 import general.ConfigWorker;
+import general.Logger;
 import general.SyIO;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class Main {
@@ -18,12 +22,14 @@ public class Main {
 
     private final SyIO syIO;
     private final ConfigWorker configWorker;
+    private final Logger logger;
     public Bot bot;
 
     public Main(){
         this.syIO = SyIO.getSyIO();
         syIO.println("STARTING VERSION " + version);
         this.configWorker = new ConfigWorker(configPath);
+        this.logger = new Logger(new File(cfg("logPath") + syIO.getFilesep() + new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss").format(new Date()) + "-bot.log"));
         boolean debug = cfg("debug").get(0).equals("true");
         String token = cfg("token").get(0);
         bot = new Bot(debug, token, this.configWorker);
@@ -36,6 +42,10 @@ public class Main {
             System.exit(-1);
         }
         return l;
+    }
+
+    public void close(){
+        this.logger.close();
     }
 
 
