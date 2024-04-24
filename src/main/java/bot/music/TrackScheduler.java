@@ -40,13 +40,6 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
-    @Override
-    public void onTrackStart(AudioPlayer player, AudioTrack track)
-    {
-        votes.clear();
-        manager.getBot().getNowplayingHandler().onTrackUpdate(track);
-    }
-
     public void queue(MusicSong track, boolean queueAsFirst) {
         boolean songInstantlyStartedPlaying = false;
         if(track.isLoaded && track.amountOfTracks() > 0){
