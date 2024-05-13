@@ -38,45 +38,53 @@ public class TrackLoader implements Runnable{
             } else {
 
                 MusicSong song = this.toLoad.poll();
-                GuildMusicManager musicManager = PlayerManager.get.getGuildMusicManager(song.channel.getGuild());
 
-                this.audioPlayerManager.loadItemOrdered(musicManager, song.url, new AudioLoadResultHandler() {
-                    @Override
-                    public void trackLoaded(AudioTrack audioTrack) {
-                        song.setTrack(audioTrack);
-                        song.isLoaded = true;
-                    }
+                if(!song.invalid) {
 
-                    @Override
-                    public void playlistLoaded(AudioPlaylist audioPlaylist) {
-                        final List<AudioTrack> tracks = audioPlaylist.getTracks();
-                        if(!tracks.isEmpty()){
 
-                            if(song.url.startsWith("ytsearch:")){
+                    GuildMusicManager musicManager = PlayerManager.get.getGuildMusicManager(song.channel.getGuild());
+
+                    this.audioPlayerManager.loadItemOrdered(musicManager, song.url, new AudioLoadResultHandler() {
+                        @Override
+                        public void trackLoaded(AudioTrack audioTrack) {
+                            song.setTrack(audioTrack);
+                            song.isLoaded = true;
+                        }
+
+                        @Override
+                        public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                            final List<AudioTrack> tracks = audioPlaylist.getTracks();
+                            if (!tracks.isEmpty()) {
+
+                                if (song.url.startsWith("ytsearch:")) {
+                                    song.setTrack(tracks.get(0));
+                                    song.isLoaded = true;
+                                    return;
+                                }
+
+                                // YouTube Playlist wird schon im LinkConverter geladen.
                                 song.setTrack(tracks.get(0));
                                 song.isLoaded = true;
-                                return;
+
                             }
-
-                            // YouTube Playlist wird schon im LinkConverter geladen.
-                            song.setTrack(tracks.get(0));
-                            song.isLoaded = true;
-
                         }
-                    }
 
-                    @Override
-                    public void noMatches() {
-                        song.isLoaded = false;
-                        song.channel.sendMessage("Keine Ergebnisse gefunden.").queue();
-                    }
+                        @Override
+                        public void noMatches() {
+                            song.isLoaded = false;
+                            song.channel.sendMessage("Keine Ergebnisse gefunden.").queue();
+                            song.invalid = true;
+                        }
 
-                    @Override
-                    public void loadFailed(FriendlyException ex) {
-                        song.isLoaded = false;
-                        song.channel.sendMessage("Beim Laden eines Songs ist ein Fehler aufgetreten. Falls eine Playlist abgespielt werden soll, stelle sicher, dass sie nicht auf privat gestellt ist.").queue();
-                    }
-                });
+                        @Override
+                        public void loadFailed(FriendlyException ex) {
+                            song.isLoaded = false;
+                            song.channel.sendMessage("Beim Laden eines Songs ist ein Fehler aufgetreten. Falls eine Playlist abgespielt werden soll, stelle sicher, dass sie nicht auf privat gestellt ist.").queue();
+                            song.invalid = true;
+                        }
+                    });
+
+                }
 
             }
         }

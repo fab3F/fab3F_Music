@@ -23,11 +23,11 @@ public class ClearQueueMusicCmd implements ServerCommand {
             return false;
 
         try {
-            PlayerManager.get.getGuildMusicManager(e.getGuild()).stopEverything();
+            PlayerManager.get.getGuildMusicManager(e.getGuild()).clearQueue();
         }catch (Exception ex){
             return false;
         }
-        e.reply("Wiedergabe gestoppt und Wiedergabeliste geleert.").queue();
+        e.reply("Wiedergabeliste erfolgreich geleert.").queue();
         return true;
 
     }

@@ -85,7 +85,9 @@ public class TrackScheduler extends AudioEventAdapter {
     // loads the next "few" songs
     public void loadNextFewSongs(){
         for(MusicSong song : new ArrayList<>(this.queue).subList(0, Math.min(queue.size(), this.aFew))){
-            if(!song.isLoaded){
+            if(song.invalid){
+                this.queue.remove(song);
+            }else if(!song.isLoaded){
                 PlayerManager.get.trackLoader.load(song);
             }
         }

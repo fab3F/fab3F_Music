@@ -10,6 +10,8 @@ import java.util.List;
 public class MusicSong {
 
     public boolean isLoaded = false;
+    public boolean invalid = false;
+
 
     public String url;
     public TextChannel channel;
