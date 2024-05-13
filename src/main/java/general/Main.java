@@ -1,9 +1,6 @@
-// Made by fab3F
+package general;// Made by fab3F
 
 import bot.Bot;
-import general.ConfigWorker;
-import general.Logger;
-import general.SyIO;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -12,20 +9,20 @@ import java.util.List;
 
 public class Main {
 
-    public static final String version = "1.0";
+    private static final String version = "1.0";
     private static final String configPath = "config";
 
     public static Main main;
     public static void main(String[] args) {
-        main = new Main();
+        main = new Main(args);
     }
 
     private final SyIO syIO;
     private final ConfigWorker configWorker;
     private final Logger logger;
-    public Bot bot;
+    private Bot bot;
 
-    public Main(){
+    public Main(String[] args){
         this.syIO = SyIO.getSyIO();
         syIO.println("STARTING VERSION " + version);
         this.configWorker = new ConfigWorker(configPath);
@@ -44,12 +41,10 @@ public class Main {
         return l;
     }
 
-    public void close(){
+    public void closeProgram(){
+        this.bot.destroy();
         this.logger.close();
     }
-
-
-
 
 
 }

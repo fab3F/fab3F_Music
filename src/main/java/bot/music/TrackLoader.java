@@ -43,7 +43,7 @@ public class TrackLoader implements Runnable{
                 this.audioPlayerManager.loadItemOrdered(musicManager, song.url, new AudioLoadResultHandler() {
                     @Override
                     public void trackLoaded(AudioTrack audioTrack) {
-                        song.addTrack(audioTrack);
+                        song.setTrack(audioTrack);
                         song.isLoaded = true;
                     }
 
@@ -53,15 +53,15 @@ public class TrackLoader implements Runnable{
                         if(!tracks.isEmpty()){
 
                             if(song.url.startsWith("ytsearch:")){
-                                song.addTrack(tracks.get(0));
+                                song.setTrack(tracks.get(0));
                                 song.isLoaded = true;
                                 return;
                             }
 
-                            for(AudioTrack t : tracks){
-                                song.addTrack(t);
-                            }
+                            // YouTube Playlist wird schon im LinkConverter geladen.
+                            song.setTrack(tracks.get(0));
                             song.isLoaded = true;
+
                         }
                     }
 

@@ -73,15 +73,10 @@ public class CommandManager {
         if (!cmd.peformCommand(e)) {
             try {
                 e.reply(cmd.getUsage().replace("{cmdName}", cmdName)).setEphemeral(true).queue();
-                return;
             } catch (Exception ex) {
                 e.reply("Ein unbekannter Fehler ist aufgetreten.").setEphemeral(true).queue();
-                return;
             }
         }
-
-        e.reply("Ein unbekannter Fehler ist aufgetreten.").setEphemeral(true).queue();
-        return;
 
     }
 

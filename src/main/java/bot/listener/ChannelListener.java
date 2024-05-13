@@ -1,5 +1,6 @@
 package bot.listener;
 
+import bot.music.PlayerManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -20,11 +21,9 @@ public class ChannelListener extends ListenerAdapter {
     }
 
     public void disconnectFromChannel(Guild g) {
-
         try {
-            GuildMusicManager.stopEverything(PlayerManager.getINSTANCE().musicManagers.get(g.getIdLong()), g);
+            PlayerManager.get.getGuildMusicManager(g).stopEverything();
         } catch (NullPointerException ignored){}
-
     }
 
 

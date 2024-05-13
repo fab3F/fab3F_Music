@@ -1,0 +1,72 @@
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+[main] INFO ShardManager - Login Successful!
+SLF4J: Failed to load class "org.slf4j.impl.StaticMDCBinder".
+SLF4J: Defaulting to no-operation MDCAdapter implementation.
+SLF4J: See http://www.slf4j.org/codes.html#no_static_mdc_binder for further details.
+[JDA [0 / 1] MainWS-WriteThread] INFO WebSocketClient - Connected to WebSocket
+[THREAD] Created Thread: Thread[TrackLoader,5,main]
+[JDA [0 / 1] MainWS-ReadThread] INFO JDA - Finished Loading!
+[THREAD] Created Thread: Thread[GuildMusicManager for 657555561528688640 - Test,5,main]
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack@16bd7068
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null

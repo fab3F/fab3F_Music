@@ -4,7 +4,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -15,26 +14,22 @@ public class MusicSong {
     public String url;
     public TextChannel channel;
     public User user;
-    private final List<AudioTrack> audioTracks;
+    private AudioTrack audioTrack;
 
     public MusicSong(String url, TextChannel textChannel, User user){
         this.url = url;
         this.channel = textChannel;
         this.user = user;
-        this.audioTracks = new ArrayList<>();
+        this.audioTrack = null;
     }
 
-   public void addTrack(AudioTrack track){
-        this.audioTracks.add(track);
+   public void setTrack(AudioTrack track){
+        this.audioTrack = track;
         this.isLoaded = true;
    }
 
-    public AudioTrack getNextTrack(){
-        return !this.audioTracks.isEmpty() ? audioTracks.remove(0) : null;
-    }
-
-    public int amountOfTracks(){
-        return this.audioTracks.size();
+    public AudioTrack getTrack(){
+        return this.audioTrack;
     }
 
 

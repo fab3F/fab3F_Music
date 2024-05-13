@@ -3,65 +3,80 @@ package bot.music;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.managers.AudioManager;
 
-import java.util.ArrayList;
+public class GuildMusicManager implements Runnable {
 
-public class GuildMusicManager {
+    // Thread
+    private final String name;
+    private boolean exitThread;
+
+    private Guild guild;
 
     public AudioPlayer audioPlayer;
     public TrackScheduler scheduler;
 
-    public LinkConverter linkConverter;
-
     private AudioPlayerSendHandler sendHandler;
 
-    public GuildMusicManager(AudioPlayerManager manager){
+    public GuildMusicManager(AudioPlayerManager manager, Guild guild) {
         this.audioPlayer = manager.createPlayer();
         this.scheduler = new TrackScheduler(this.audioPlayer);
         this.audioPlayer.addListener(this.scheduler);
         this.sendHandler = new AudioPlayerSendHandler(this.audioPlayer);
-        this.linkConverter = new LinkConverter();
+
+        this.guild = guild;
+
+        // Thread
+        this.name = "GuildMusicManager for " + guild.getId() + " - " + guild.getName();
+        Thread thread = new Thread(this, name);
+        System.out.println("[THREAD] Created Thread: " + thread);
+        exitThread = false;
+        thread.start();
     }
 
-    public static void stopEverything(GuildMusicManager m, Guild g){
-        m.scheduler.ListToQueue = new ArrayList<>();
-        m.scheduler.queue.clear();
-        m.scheduler.audioPlayer.stopTrack();
-        m.scheduler.nextTrack(true);
-        m.scheduler.audioPlayer.stopTrack();
-        m.audioPlayer.setPaused(false);
-        m.scheduler.repeating = false;
-        m.scheduler.loadedSongs = 0;
-        m.scheduler.ParallelList.clear();
-        m.linkConverter.stopEverything();
+    public void stopEverything(){
 
+        this.exitThread = true;
 
-        final AudioManager audioManager = g.getAudioManager();
-        audioManager.closeAudioConnection();
+        this.guild.getAudioManager().closeAudioConnection();
 
-        PlayerManager.getINSTANCE().musicManagers.remove(g.getIdLong());
+        this.clearQueue();
+        this.audioPlayer.stopTrack();
+        this.audioPlayer.destroy();
+        this.audioPlayer = null;
 
-        m.audioPlayer = null;
-        m.scheduler = null;
-        m.sendHandler = null;
-        m.linkConverter = null;
+        this.sendHandler = null;
 
-        m = null;
+        this.scheduler = null;
+
+        PlayerManager.get.removeGuildMusicManager(this.guild.getId());
     }
 
-    public static void clearQueue(GuildMusicManager m){
-        m.scheduler.queue.clear();
-        m.scheduler.ParallelList.clear();
-        m.scheduler.ListToQueue = new ArrayList<>();
-
-        if(m.audioPlayer.getPlayingTrack() != null)
-            m.scheduler.loadedSongs = 1;
-        else
-            m.scheduler.loadedSongs = 0;
+    public void clearQueue(){
+        this.scheduler.clearQueue();
     }
 
     public AudioPlayerSendHandler getSendHandler(){
         return this.sendHandler;
    }
+
+
+    @Override
+    public void run() {
+        while (!exitThread) {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException ignored) {}
+
+
+            if(this.scheduler != null){
+                this.scheduler.loadNextFewSongs();
+                if(this.audioPlayer.getPlayingTrack() == null && this.scheduler.getNextSong() != null && this.scheduler.getNextSong().isLoaded){
+                    this.scheduler.nextSong();
+                }
+
+            }
+
+        }
+    }
+
 }
