@@ -30,8 +30,8 @@ bin/
 
 /.idea/
 
-/[logs]
+/[logs]/
 
-/config
+/config/
 
-/target
+/target/

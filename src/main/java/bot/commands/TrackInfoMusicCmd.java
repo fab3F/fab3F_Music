@@ -59,7 +59,7 @@ public class TrackInfoMusicCmd implements ServerCommand {
 
         eb.addField("Länge", "**`" + length + "`**", false);
         eb.addField("URL", "**`" + musicManager.scheduler.getLastPlaying().getTrack().getInfo().uri + "`**", false);
-        eb.addField("Hinzugefügt von", "**`" + musicManager.scheduler.getLastPlaying().user.getAsMention() + "`**", false);
+        eb.addField("Hinzugefügt von", "**`" + musicManager.scheduler.getLastPlaying().user.getName() + "`**", false);
         eb.setFooter("Befehl '/trackinfo'");
         eb.setTimestamp(new Date().toInstant());
 

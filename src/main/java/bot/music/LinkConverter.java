@@ -42,7 +42,7 @@ public class LinkConverter {
 
         GuildMusicManager musicManager = PlayerManager.get.getGuildMusicManager(e.getGuild());
 
-        if((input.startsWith("https") && input.contains("youtu.be/")) || input.startsWith("https") && input.contains("spotify.link/") ){
+        if((input.startsWith("https") && input.contains("youtu.be/")) || (input.startsWith("https") && input.contains("spotify.link/")) ){
             input = this.expandURL(input);
             if(input.startsWith(ERROR_PREFIX)){
                 e.getHook().sendMessage(input.replaceAll("_ERR_", "")).queue();
