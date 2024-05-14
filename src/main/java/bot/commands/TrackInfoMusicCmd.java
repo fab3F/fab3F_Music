@@ -2,6 +2,7 @@ package bot.commands;
 
 import bot.Bot;
 import bot.music.GuildMusicManager;
+import bot.music.MusicSong;
 import bot.music.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -38,16 +39,20 @@ public class TrackInfoMusicCmd implements ServerCommand {
 
         e.deferReply().queue();
 
-
+        MusicSong last = musicManager.scheduler.getLastPlaying();
 
         EmbedBuilder eb = new EmbedBuilder();
         eb.setAuthor("Informationen zu");
         eb.setColor(Color.MAGENTA);
-        eb.setTitle("**`" + musicManager.scheduler.getLastPlaying().getTrack().getInfo().title + "`**");
-        eb.setDescription("Bestimmt ein wunderbarer Song");
-        eb.addField("Interpret", "**`" + musicManager.scheduler.getLastPlaying().getTrack().getInfo().author + "`**", false);
+        eb.setTitle("**`" + last.getTrack().getInfo().title + "`**");
+        eb.setDescription("Bestimmt ein wunderbarer Song.");
+        if(musicManager.scheduler.isRepeat()){
+            eb.setDescription("Bestimmt ein wunderbarer Song.\n" +
+                    "**Information:** Dieser Song wird wiederholt.");
+        }
+        eb.addField("Interpret", "**`" + last.getTrack().getInfo().author + "`**", false);
 
-        int durationInSeconds = (int) musicManager.scheduler.getLastPlaying().getTrack().getInfo().length / 1000;
+        int durationInSeconds = (int) last.getTrack().getInfo().length / 1000;
         int hours = durationInSeconds / 3600;
         int minutes = (durationInSeconds % 3600) / 60;
         int seconds = durationInSeconds % 60;
@@ -59,8 +64,8 @@ public class TrackInfoMusicCmd implements ServerCommand {
         }
 
         eb.addField("Länge", "**`" + length + "`**", false);
-        eb.addField("URL", "**`" + musicManager.scheduler.getLastPlaying().getTrack().getInfo().uri + "`**", false);
-        eb.addField("Hinzugefügt von", "**`" + musicManager.scheduler.getLastPlaying().user.getName() + "`**", false);
+        eb.addField("URL", last.getTrack().getInfo().uri, false);
+        eb.addField("Hinzugefügt von", "**`" + last.user.getName() + "`**", false);
         eb.setFooter("Befehl '/trackinfo'");
         eb.setTimestamp(new Date().toInstant());
 

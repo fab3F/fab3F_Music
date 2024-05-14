@@ -9,22 +9,24 @@ public class MessageListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if(event.getAuthor().getId().equals(Bot.instance.configWorker.getBotConfig("ownerId").get(0)) && event.getMessage().getContentDisplay().startsWith("forceshutdown")){
-            String id = event.getMessage().getContentDisplay().split(" ")[1];
-            if(id.equals(event.getGuild().getSelfMember().getId())){
-                event.getChannel().sendMessage("Shutdown!").queue();
-                Main.main.closeProgram();
+        if(Bot.instance.configWorker.getBotConfig("adminIDs").contains(event.getAuthor().getId())) {
+            String msg = event.getMessage().getContentDisplay();
+            String[] parts = msg.split(" ");
+
+            if (msg.startsWith("forceshutdown") && parts.length > 1) {
+                String id = parts[1];
+                if (id.equals(event.getGuild().getSelfMember().getId())) {
+                    event.getChannel().sendMessage("Shutdown!").queue();
+                    Main.main.closeProgram();
+                }
+            } else if (msg.startsWith("forcerestart") && parts.length > 1) {
+                String id = parts[1];
+                if (id.equals(event.getGuild().getSelfMember().getId())) {
+                    event.getChannel().sendMessage("Restarting!").queue();
+                    Main.main.restartBot();
+                }
             }
         }
-
-        if(event.getAuthor().getId().equals(Bot.instance.configWorker.getBotConfig("ownerId").get(0)) && event.getMessage().getContentDisplay().startsWith("forcerestart")){
-            String id = event.getMessage().getContentDisplay().split(" ")[1];
-            if(id.equals(event.getGuild().getSelfMember().getId())){
-                event.getChannel().sendMessage("Restarting!").queue();
-                Main.main.restartBot();
-            }
-        }
-
     }
 
 }

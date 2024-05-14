@@ -7,6 +7,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class TrackScheduler extends AudioEventAdapter {
@@ -15,7 +16,7 @@ public class TrackScheduler extends AudioEventAdapter {
     private final ConcurrentLinkedDeque<MusicSong> queue = new ConcurrentLinkedDeque<>();
     private MusicSong lastPlayingSong;
     private boolean isRepeat = false;
-    private int aFew = 3; // how much a "few" songs is
+    private int aFew = 3; // how much a "few" songs is (preloaded)
 
     public TrackScheduler(AudioPlayer player) {
         this.player = player;
@@ -58,12 +59,14 @@ public class TrackScheduler extends AudioEventAdapter {
 
         if(nextSong == null || !nextSong.isLoaded){
             if(skipping){
+                this.isRepeat = false;
                 player.startTrack(null, false);
                 loadNextFewSongs();
             }
             return;
         }
 
+        this.isRepeat = false;
         player.startTrack(nextSong.getTrack(), false);
         trackStartedPlaying(nextSong);
         loadNextFewSongs();
@@ -114,6 +117,10 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public void clearQueue(){
         this.queue.clear();
+    }
+
+    public List<MusicSong> getQueue(){
+        return new ArrayList<>(this.queue);
     }
 
     public boolean isRepeat() {
