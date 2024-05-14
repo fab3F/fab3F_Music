@@ -1,5 +1,6 @@
 package bot.music;
 
+import bot.Bot;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -28,7 +29,7 @@ public class TrackScheduler extends AudioEventAdapter {
         if(isRepeat) {
             player.startTrack(track.makeClone(), false);
         } else {
-            this.nextSong();
+            this.nextSong(false);
         }
     }
 
@@ -52,18 +53,23 @@ public class TrackScheduler extends AudioEventAdapter {
         loadNextFewSongs();
     }
 
-    public void nextSong(){
+    public void nextSong(boolean skipping){
         MusicSong nextSong = queue.poll();
-        if(nextSong == null)
-            return;
 
-        if(!nextSong.isLoaded)
+        if(nextSong == null || !nextSong.isLoaded){
+            if(skipping){
+                player.startTrack(null, false);
+                loadNextFewSongs();
+            }
             return;
+        }
 
-        player.startTrack(nextSong.getTrack(), true);
+        player.startTrack(nextSong.getTrack(), false);
         trackStartedPlaying(nextSong);
         loadNextFewSongs();
     }
+
+
 
     public void trackStartedPlaying(MusicSong song){
         int durationInSeconds = (int) song.getTrack().getInfo().length / 1000;
@@ -88,7 +94,7 @@ public class TrackScheduler extends AudioEventAdapter {
             if(song.invalid){
                 this.queue.remove(song);
             }else if(!song.isLoaded){
-                PlayerManager.get.trackLoader.load(song);
+                Bot.instance.getPM().trackLoader.load(song);
             }
         }
 

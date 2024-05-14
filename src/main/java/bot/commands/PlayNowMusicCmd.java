@@ -1,5 +1,6 @@
 package bot.commands;
 
+import bot.Bot;
 import bot.music.PlayerManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
@@ -40,7 +41,7 @@ public class PlayNowMusicCmd implements ServerCommand {
             e.getHook().sendMessage("Sorry, aber diese URL oder dieser Name enthält ein unzulässiges Sonderzeichen. Bitte versuche es erneut.").queue();
             return true;
         }
-        PlayerManager.get.linkConverter.addUrl(link, e, true);
+        Bot.instance.getPM().linkConverter.addUrl(link, e, true);
 
         return true;
     }

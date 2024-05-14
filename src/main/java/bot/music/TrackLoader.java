@@ -1,5 +1,6 @@
 package bot.music;
 
+import bot.Bot;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -31,6 +32,8 @@ public class TrackLoader implements Runnable{
     public void run() {
         while (!exitThread) {
 
+
+
             if(toLoad.isEmpty()){
                 try {
                     Thread.sleep(1000);
@@ -42,7 +45,7 @@ public class TrackLoader implements Runnable{
                 if(!song.invalid) {
 
 
-                    GuildMusicManager musicManager = PlayerManager.get.getGuildMusicManager(song.channel.getGuild());
+                    GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(song.channel.getGuild());
 
                     this.audioPlayerManager.loadItemOrdered(musicManager, song.url, new AudioLoadResultHandler() {
                         @Override
@@ -85,7 +88,6 @@ public class TrackLoader implements Runnable{
                     });
 
                 }
-
             }
         }
 

@@ -11,7 +11,6 @@ import java.util.Map;
 
 public class PlayerManager {
 
-    public static PlayerManager get;
     private final Map<String, GuildMusicManager> guildMusicManagers = new HashMap<>();
     private AudioPlayerManager audioPlayerManager = new DefaultAudioPlayerManager();
     public TrackLoader trackLoader;
@@ -22,26 +21,31 @@ public class PlayerManager {
         AudioSourceManagers.registerLocalSource(audioPlayerManager);
         this.trackLoader = new TrackLoader(audioPlayerManager);
         this.linkConverter = new LinkConverter(Bot.instance.configWorker.getBotConfig("spotifyClientId").get(0), Bot.instance.configWorker.getBotConfig("spotifyClientId").get(0));
-        get = this;
     }
 
 
     public GuildMusicManager getGuildMusicManager(Guild guild){
-        return this.guildMusicManagers.computeIfAbsent(guild.getId(), (guildId) -> {
-            final GuildMusicManager guildMusicManager = new GuildMusicManager(this.audioPlayerManager, guild);
-            guild.getAudioManager().setSendingHandler(guildMusicManager.getSendHandler());
-            return guildMusicManager;
-        });
+        GuildMusicManager gm = this.guildMusicManagers.get(guild.getId());
+        if (gm == null) {
+            gm = new GuildMusicManager(this.audioPlayerManager, guild);
+            this.guildMusicManagers.put(guild.getId(), gm);
+        }
+        return gm;
     }
 
-    public void removeGuildMusicManager(String guildId){
-        this.guildMusicManagers.remove(guildId);
+    public void stopGuildMusicManager(String guildId){
+        GuildMusicManager gm = this.guildMusicManagers.remove(guildId);
+        if(gm != null){
+            gm.stopManager();
+        }
     }
 
     public void closeEverything(){
         for(Map.Entry<String, GuildMusicManager> entry : this.guildMusicManagers.entrySet()){
-            GuildMusicManager gm = entry.getValue();
-            gm.stopEverything();
+            GuildMusicManager gm = this.guildMusicManagers.remove(entry.getKey());
+            if(gm != null){
+                gm.stopManager();
+            }
         }
 
         this.guildMusicManagers.clear();
@@ -57,6 +61,10 @@ public class PlayerManager {
 
         // this = null;
 
+    }
+
+    public int numberOfGMMs(){
+        return this.guildMusicManagers.size();
     }
 
 }

@@ -1,5 +1,6 @@
 package bot.commands;
 
+import bot.Bot;
 import bot.music.PlayerManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -23,7 +24,7 @@ public class ClearQueueMusicCmd implements ServerCommand {
             return false;
 
         try {
-            PlayerManager.get.getGuildMusicManager(e.getGuild()).clearQueue();
+            Bot.instance.getPM().getGuildMusicManager(e.getGuild()).clearQueue();
         }catch (Exception ex){
             return false;
         }

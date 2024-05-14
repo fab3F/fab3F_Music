@@ -21,7 +21,7 @@ public class Bot {
     private final CommandManager commandManager;
     private final ShardManager shardManager;
 
-
+    private PlayerManager playerManager;
 
     public Bot(boolean debug, String token, ConfigWorker configWorker){
         instance = this;
@@ -40,12 +40,14 @@ public class Bot {
         builder.disableCache(CacheFlag.ONLINE_STATUS, CacheFlag.ACTIVITY, CacheFlag.STICKER, CacheFlag.CLIENT_STATUS);
         this.shardManager = builder.build();
 
-        new PlayerManager();
+        this.playerManager = new PlayerManager();
     }
 
-    public CommandManager getCommandManager(){return commandManager;}
+    public CommandManager getCommandManager(){return this.commandManager;}
 
-    public ShardManager getShardManager(){return shardManager;}
+    public ShardManager getShardManager(){return this.shardManager;}
+
+    public PlayerManager getPM(){return this.playerManager;}
 
     public Activity getActivity(String activity, String content){
         return switch (activity) {
@@ -56,9 +58,10 @@ public class Bot {
     }
 
     public void destroy(){
-        PlayerManager.get.closeEverything();
-        PlayerManager.get = null;
+        this.playerManager.closeEverything();
+        this.playerManager = null;
 
+        this.getShardManager().setStatus(OnlineStatus.OFFLINE);
         this.getShardManager().shutdown();
 
     }

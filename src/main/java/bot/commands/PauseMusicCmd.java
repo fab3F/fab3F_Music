@@ -1,5 +1,6 @@
 package bot.commands;
 
+import bot.Bot;
 import bot.music.GuildMusicManager;
 import bot.music.PlayerManager;
 import net.dv8tion.jda.api.Permission;
@@ -24,7 +25,7 @@ public class PauseMusicCmd implements ServerCommand {
             return false;
 
 
-        GuildMusicManager musicManager = PlayerManager.get.getGuildMusicManager(e.getGuild());
+        GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
 
 
         if(musicManager.audioPlayer.getPlayingTrack() == null)

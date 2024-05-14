@@ -1,5 +1,6 @@
 package bot.commands;
 
+import bot.Bot;
 import bot.music.GuildMusicManager;
 import bot.music.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -28,7 +29,7 @@ public class TrackInfoMusicCmd implements ServerCommand {
         if(!memberVoiceState.getChannel().getId().equals(selfVoiceState.getChannel().getId()))
             return false;
 
-        GuildMusicManager musicManager = PlayerManager.get.getGuildMusicManager(e.getGuild());
+        GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
 
 
         if(musicManager.audioPlayer.getPlayingTrack() == null)

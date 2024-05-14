@@ -1,5 +1,6 @@
 package bot.music;
 
+import bot.Bot;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.apache.hc.core5.http.ParseException;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -40,12 +41,22 @@ public class LinkConverter {
         if(e.getGuild() == null)
             return;
 
-        GuildMusicManager musicManager = PlayerManager.get.getGuildMusicManager(e.getGuild());
+        if(Bot.instance.debug)
+            System.out.println("[DEBUG] Loading: " + input);
+
+        GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
 
         if((input.startsWith("https") && input.contains("youtu.be/")) || (input.startsWith("https") && input.contains("spotify.link/")) ){
+
             input = this.expandURL(input);
+
+            if(Bot.instance.debug)
+                System.out.println("[DEBUG] Expanding URL: " + input);
+
             if(input.startsWith(ERROR_PREFIX)){
                 e.getHook().sendMessage(input.replaceAll("_ERR_", "")).queue();
+                if(Bot.instance.debug)
+                    System.out.println("[DEBUG] ERROR MESSAGE: " + input);
                 return;
             }
 
@@ -53,6 +64,8 @@ public class LinkConverter {
 
 
         if(input.startsWith("https") && input.contains("youtube.com/watch") && !input.contains("list=")){
+            if(Bot.instance.debug)
+                System.out.println("[DEBUG] Loading YT Video: " + input);
             e.getHook().sendMessage("YouTube Song zur Wiedergabeliste hinzugefügt: " + input).queue();
             musicManager.scheduler.queue(new MusicSong(input, e.getChannel().asTextChannel(), e.getUser()), playAsFirst);
             return;
@@ -61,18 +74,48 @@ public class LinkConverter {
 
 
         else if(input.startsWith("https") && input.contains("youtube.com/") && input.contains("list=")){
+            if(Bot.instance.debug)
+                System.out.println("[DEBUG] Loading YT List: " + input);
             e.getHook().sendMessage("YouTube Playlist ist noch in Arbeit").queue();
             return;
             // Sonderfall: hier werden die Songs schon im Link Converter geladen
 
         }
 
+        else if(input.startsWith("https") && input.contains("spotify.com/") && input.contains("/track/")){
+            if(Bot.instance.debug)
+                System.out.println("[DEBUG] Loading Spotify Song: " + input);
+
+            String song = this.loadSpotify(input).get(0);
+            if(song.startsWith(ERROR_PREFIX)){
+                e.getHook().sendMessage(song.replaceAll("_ERR_", "")).queue();
+                if(Bot.instance.debug)
+                    System.out.println("[DEBUG] ERROR MESSAGE: " + song);
+                return;
+            }
+
+            musicManager.scheduler.queue(new MusicSong("ytsearch:" + song + " audio", e.getChannel().asTextChannel(), e.getUser()), playAsFirst);
+            e.getHook().sendMessage("Spotify Song zur Wiedergabeliste hinzugefügt: " + input).queue();
+
+            if(Bot.instance.debug)
+                System.out.println("[DEBUG] Queued Spotify Song: " + input);
+
+            return;
+        }
+
 
         else if(input.startsWith("https") && input.contains("spotify.com/") && input.contains("/playlist/")){
+            if(Bot.instance.debug)
+                System.out.println("[DEBUG] Loading Spotify List: " + input);
+
             e.getHook().sendMessage("Spotify Playlist wird geladen und zur Wiedergabeliste hinzugefügt, dies kann einige Sekunden dauern: " + input).queue();
             List<String> list = this.loadSpotify(input);
+
+
             if(list.get(0).startsWith(ERROR_PREFIX)){
-                e.getChannel().sendMessage(input.replaceAll("_ERR_", "")).queue();
+                e.getChannel().sendMessage(list.get(0).replaceAll("_ERR_", "")).queue();
+                if(Bot.instance.debug)
+                    System.out.println("[DEBUG] ERROR MESSAGE: " + list.get(0));
                 return;
             }
 
@@ -80,23 +123,16 @@ public class LinkConverter {
                 musicManager.scheduler.queue(new MusicSong("ytsearch:" + name + " audio", e.getChannel().asTextChannel(), e.getUser()), false);
             }
             e.getChannel().sendMessage("Spotify Playlist wurde fertig geladen.").queue();
-            return;
-        }
 
+            if(Bot.instance.debug)
+                System.out.println("[DEBUG] Queued Spotify List: " + input);
 
-        else if(input.startsWith("https") && input.contains("spotify.com/") && input.contains("/track/")){
-            String song = this.loadSpotify(input).get(0);
-            if(song.startsWith(ERROR_PREFIX)){
-                e.getHook().sendMessage(input.replaceAll("_ERR_", "")).queue();
-                return;
-            }
-
-            musicManager.scheduler.queue(new MusicSong("ytsearch:" + song + " audio", e.getChannel().asTextChannel(), e.getUser()), playAsFirst);
-            e.getHook().sendMessage("Spotify Song zur Wiedergabeliste hinzugefügt: " + input).queue();
             return;
         }
 
         else{
+            if(Bot.instance.debug)
+                System.out.println("[DEBUG] Loading YT Search: " + input);
             musicManager.scheduler.queue(new MusicSong("ytsearch:" + input + " audio", e.getChannel().asTextChannel(), e.getUser()), playAsFirst);
             e.getHook().sendMessage("Song zur Wiedergabeliste hinzugefügt: " + input).queue();
             return;

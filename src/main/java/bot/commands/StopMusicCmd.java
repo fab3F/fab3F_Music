@@ -1,5 +1,6 @@
 package bot.commands;
 
+import bot.Bot;
 import bot.music.PlayerManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -23,7 +24,7 @@ public class StopMusicCmd implements ServerCommand {
             return false;
 
         try {
-            PlayerManager.get.getGuildMusicManager(e.getGuild()).stopEverything();
+            Bot.instance.getPM().stopGuildMusicManager(e.getGuild().getId());
         }catch (Exception ex){
             return false;
         }

@@ -1,5 +1,6 @@
 package bot.music;
 
+import bot.Bot;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.entities.Guild;
@@ -25,6 +26,8 @@ public class GuildMusicManager implements Runnable {
 
         this.guild = guild;
 
+        this.guild.getAudioManager().setSendingHandler(this.sendHandler);
+
         // Thread
         this.name = "GuildMusicManager for " + guild.getId() + " - " + guild.getName();
         Thread thread = new Thread(this, name);
@@ -33,7 +36,7 @@ public class GuildMusicManager implements Runnable {
         thread.start();
     }
 
-    public void stopEverything(){
+    public void stopManager(){
 
         this.exitThread = true;
 
@@ -48,30 +51,25 @@ public class GuildMusicManager implements Runnable {
 
         this.scheduler = null;
 
-        PlayerManager.get.removeGuildMusicManager(this.guild.getId());
     }
 
     public void clearQueue(){
         this.scheduler.clearQueue();
     }
 
-    public AudioPlayerSendHandler getSendHandler(){
-        return this.sendHandler;
-   }
-
 
     @Override
     public void run() {
         while (!exitThread) {
             try {
-                Thread.sleep(5000);
+                Thread.sleep(1000);
             } catch (InterruptedException ignored) {}
 
 
             if(this.scheduler != null){
                 this.scheduler.loadNextFewSongs();
                 if(this.audioPlayer.getPlayingTrack() == null && this.scheduler.getNextSong() != null && this.scheduler.getNextSong().isLoaded){
-                    this.scheduler.nextSong();
+                    this.scheduler.nextSong(false);
                 }
 
             }

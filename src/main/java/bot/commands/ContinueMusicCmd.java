@@ -1,7 +1,7 @@
 package bot.commands;
 
+import bot.Bot;
 import bot.music.GuildMusicManager;
-import bot.music.PlayerManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -24,9 +24,9 @@ public class ContinueMusicCmd implements ServerCommand {
             return false;
 
 
-        GuildMusicManager musicManager = PlayerManager.get.getGuildMusicManager(e.getGuild());
+        GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
 
-        if(musicManager.audioPlayer.isPaused()){
+        if(!musicManager.audioPlayer.isPaused()){
             e.reply("Die Wiedergabe wird bereits fortgesetzt. Benutze ```/pause``` um die Wiedergabe zu pausieren oder benutze ```/skip``` um einen Song zu überspringen.").queue();
             return true;
         }

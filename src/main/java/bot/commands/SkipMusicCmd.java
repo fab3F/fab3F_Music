@@ -1,7 +1,7 @@
 package bot.commands;
 
+import bot.Bot;
 import bot.music.GuildMusicManager;
-import bot.music.PlayerManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -24,13 +24,13 @@ public class SkipMusicCmd implements ServerCommand {
             return false;
 
 
-        GuildMusicManager musicManager = PlayerManager.get.getGuildMusicManager(e.getGuild());
+        GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
 
 
         if(musicManager.audioPlayer.getPlayingTrack() == null)
             return false;
 
-        musicManager.scheduler.nextSong();
+        musicManager.scheduler.nextSong(true);
 
         e.reply("Aktueller Song wurde übersprungen.").queue();
 
