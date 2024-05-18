@@ -31,7 +31,7 @@ bin/
 /.idea/
 
 
-[logs]/
+/logs
 /config
 /target/
 /out

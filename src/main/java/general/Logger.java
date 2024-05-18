@@ -23,8 +23,12 @@ public class Logger{
     }
 
     public void close(){
-        this.console.close();
-        this.file.close();
+        if (this.console != null) {
+            this.console.close();
+        }
+        if (this.file != null) {
+            this.file.close();
+        }
     }
 
     private boolean cantCreateFile(File f){

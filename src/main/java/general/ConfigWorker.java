@@ -12,8 +12,7 @@ import java.util.Scanner;
 
 public class ConfigWorker {
 
-    private final SyIO syIO = SyIO.getSyIO();
-    private final String filesep = syIO.getFilesep();
+    private final String filesep = File.separator;
     private final String configPath;
     public ConfigWorker(String configPath){
         this.configPath = configPath;
@@ -71,7 +70,7 @@ public class ConfigWorker {
             Files.copy(template, path, StandardCopyOption.REPLACE_EXISTING);
             return true;
         }catch (IOException e){
-            syIO.println("[ERROR] Cant create config file for server: " + guildId);
+            Main.error("Cant create config file for server: " + guildId);
             return false;
         }
     }
@@ -84,7 +83,7 @@ public class ConfigWorker {
         try {
             config = new Scanner(file);
         } catch (FileNotFoundException e) {
-            syIO.println("[ERROR] Config file not found for request " + name + " in file: " + file.getPath());
+            Main.error("Config file not found for request " + name + " in file: " + file.getPath());
             return l;
         }
 
@@ -117,7 +116,7 @@ public class ConfigWorker {
         try {
             config = new Scanner(file);
         } catch (FileNotFoundException e) {
-            syIO.println("[ERROR] Config file not found for request " + name + " in file: " + file.getPath());
+            Main.error("Config file not found for request " + name + " in file: " + file.getPath());
             return false;
         }
         while (config.hasNextLine()){
@@ -149,7 +148,7 @@ public class ConfigWorker {
             }
             return true;
         } catch (IOException e) {
-            syIO.println("[ERROR] Cant write config file for server: " + file.getPath() + " with name " + name);
+            Main.error("Cant write config file for server: " + file.getPath() + " with name " + name);
             return false;
         }
     }

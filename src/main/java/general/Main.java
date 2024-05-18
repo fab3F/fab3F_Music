@@ -17,17 +17,15 @@ public class Main {
         main = new Main();
     }
 
-    private final SyIO syIO;
     private final ConfigWorker configWorker;
     private final Logger logger;
     private final boolean debug;
     private Bot bot;
 
     public Main(){
-        this.syIO = SyIO.getSyIO();
-        syIO.println("STARTING VERSION " + version);
         this.configWorker = new ConfigWorker(configPath);
-        this.logger = new Logger(new File(cfg("logPath") + syIO.getFilesep() + new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss").format(new Date()) + "-bot.log"));
+        this.logger = new Logger(new File(cfg("logPath").get(0) + File.separator + new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss").format(new Date()) + "-bot.log"));
+        Main.log("STARTING VERSION " + version);
         debug = cfg("debug").get(0).equals("true");
         String token = cfg("token").get(0);
         this.bot = new Bot(debug, token, this.configWorker);
@@ -36,7 +34,7 @@ public class Main {
     private List<String> cfg(String name){
         List<String> l = configWorker.getBotConfig(name);
         if(l.isEmpty()){
-            syIO.println("[ERROR] Config file not correct");
+            Main.error("Config file not correct");
             System.exit(-1);
         }
         return l;
@@ -56,17 +54,22 @@ public class Main {
         this.logger.close();
     }
 
+
     public static void debug(String message){
         if(main.debug)
-            System.out.println("[DEBUG] " + message);
+            System.out.println("[DEBUG-" + new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss").format(new Date()) + "] " + message);
     }
 
     public static void error(String message){
-        System.out.println("\033[0;31m" + "[ERROR] " + message + "\033[0m");
+        System.err.println("[ERROR-" + new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss").format(new Date()) + "] " + message);
     }
 
     public static void thread(String message){
-        System.out.println("[THREAD] " + message);
+        System.out.println("[THREAD-" + new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss").format(new Date()) + "] " + message);
+    }
+
+    public static void log(String message){
+        System.out.println("[LOG-" + new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss").format(new Date()) + "] " + message);
     }
 
 
