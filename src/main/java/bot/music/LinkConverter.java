@@ -13,6 +13,7 @@ import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -139,23 +140,70 @@ public class LinkConverter {
         }
     }
 
-    public String expandURL(String shortenedUrl) {
+    public String expandURL(String shortUrl) {
+        shortUrl = shortUrl.replaceFirst("\\?.*$", "");
+        final int MAX_REDIRECTS = 4;  // Maximale Anzahl von Weiterleitungen
+        int redirectCount = 0;
+        HttpURLConnection connection = null;
+        String expandedUrl = "";
         try {
-            HttpURLConnection connection = (HttpURLConnection) new URL(shortenedUrl).openConnection();
-            connection.setInstanceFollowRedirects(false);
-            connection.connect();
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
-                String expandedUrl = connection.getHeaderField("Location");
-                if (expandedUrl != null) {
-                    return expandedUrl;
+            while (redirectCount < MAX_REDIRECTS) {
+                redirectCount++;
+                URL url = new URL(shortUrl);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setInstanceFollowRedirects(false);
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
+                        responseCode == HttpURLConnection.HTTP_MOVED_TEMP ||
+                        responseCode == HttpURLConnection.HTTP_SEE_OTHER ||
+                        responseCode == 307) {
+                    shortUrl = connection.getHeaderField("Location");
+                } else if (responseCode == HttpURLConnection.HTTP_OK) {
+                    expandedUrl = shortUrl;
+                    redirectCount = 999;
+                } else {
+                    return "_ERR_ERROR 20: URL can't be converted.";
                 }
             }
-            return shortenedUrl;
-        } catch (IOException ex){
-            return "_ERR_ERROR 20: URL cant be converted.";
+            if(redirectCount != 999)
+                return "_ERR_ERROR 20: URL can't be converted.";
+        } catch (IOException e) {
+            return "_ERR_ERROR 20: URL can't be converted.";
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
+        // Remove parameters and keep only the 'v' parameter if it exists
+        try {
+            URI uri = new URI(expandedUrl);
+            String query = uri.getQuery();
+            String videoId = null;
+            if (query != null) {
+                String[] pairs = query.split("&");
+                for (String pair : pairs) {
+                    String[] keyValue = pair.split("=");
+                    if (keyValue.length == 2 && keyValue[0].equals("v")) {
+                        videoId = keyValue[1];
+                        break;
+                    }
+                }
+            }
 
+            StringBuilder cleanedUrl = new StringBuilder();
+            cleanedUrl.append(uri.getScheme())
+                    .append("://")
+                    .append(uri.getHost())
+                    .append(uri.getPath());
+
+            if (videoId != null) {
+                cleanedUrl.append("?v=").append(videoId);
+            }
+
+            return cleanedUrl.toString();
+        } catch (Exception ex) {
+            return "_ERR_ERROR 21: URL can't be cleaned.";
+        }
     }
 
     private boolean initializeSpotify(){
