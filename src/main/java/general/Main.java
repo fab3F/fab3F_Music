@@ -20,6 +20,7 @@ public class Main {
     private final SyIO syIO;
     private final ConfigWorker configWorker;
     private final Logger logger;
+    private final boolean debug;
     private Bot bot;
 
     public Main(){
@@ -27,7 +28,7 @@ public class Main {
         syIO.println("STARTING VERSION " + version);
         this.configWorker = new ConfigWorker(configPath);
         this.logger = new Logger(new File(cfg("logPath") + syIO.getFilesep() + new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss").format(new Date()) + "-bot.log"));
-        boolean debug = cfg("debug").get(0).equals("true");
+        debug = cfg("debug").get(0).equals("true");
         String token = cfg("token").get(0);
         this.bot = new Bot(debug, token, this.configWorker);
     }
@@ -50,9 +51,22 @@ public class Main {
         this.bot = new Bot(debug, token, this.configWorker);
     }
 
-    public void closeProgram(){
+    public void closeBot(){
         this.bot.destroy();
         this.logger.close();
+    }
+
+    public static void debug(String message){
+        if(main.debug)
+            System.out.println("[DEBUG] " + message);
+    }
+
+    public static void error(String message){
+        System.out.println("\033[0;31m" + "[ERROR] " + message + "\033[0m");
+    }
+
+    public static void thread(String message){
+        System.out.println("[THREAD] " + message);
     }
 
 

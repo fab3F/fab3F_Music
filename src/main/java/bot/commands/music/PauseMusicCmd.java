@@ -1,13 +1,15 @@
-package bot.commands;
+package bot.commands.music;
 
 import bot.Bot;
+import bot.commands.ServerCommand;
 import bot.music.GuildMusicManager;
+import bot.music.PlayerManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
-public class SkipMusicCmd implements ServerCommand {
+public class PauseMusicCmd implements ServerCommand {
     @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
         final Member self = e.getGuild().getSelfMember();
@@ -30,9 +32,14 @@ public class SkipMusicCmd implements ServerCommand {
         if(musicManager.audioPlayer.getPlayingTrack() == null)
             return false;
 
-        musicManager.scheduler.nextSong(true);
+        if(musicManager.audioPlayer.isPaused()){
+            e.reply("Die Wiedergabe ist bereits pausiert. Benutze ```/continue``` um die Wiedergabe fortzusetzen.").queue();
+            return true;
+        }
 
-        e.reply("Aktueller Song wurde übersprungen.").queue();
+        musicManager.audioPlayer.setPaused(true);
+
+        e.reply("Wiedergabe pausiert.").queue();
 
         return true;
     }
@@ -50,7 +57,7 @@ public class SkipMusicCmd implements ServerCommand {
     @Override
     public String getUsage(){
         return """
-                Benutze ```/skip```
+                Benutze ```/pause```
                 Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.
                 Es muss gerade ein Song abgespielt werden.""";
     }

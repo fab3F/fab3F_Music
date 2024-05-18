@@ -1,6 +1,7 @@
-package bot.commands;
+package bot.commands.music;
 
 import bot.Bot;
+import bot.commands.ServerCommand;
 import bot.music.MusicSong;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -31,6 +32,14 @@ public class QueueMusicCmd implements ServerCommand {
 
 
         List<MusicSong> queue = Bot.instance.getPM().getGuildMusicManager(e.getGuild()).scheduler.getQueue();
+        int remaining = queue.size();
+        if(remaining > 10){
+            queue = queue.subList(0, 10);
+            remaining -= 10;
+        }else{
+            remaining = -1;
+        }
+
         if(queue.isEmpty()){
             e.reply("Die Wiedergabeliste ist leer.").setEphemeral(true).queue();
             return true;
@@ -39,7 +48,7 @@ public class QueueMusicCmd implements ServerCommand {
         e.deferReply().queue();
 
         EmbedBuilder eb = new EmbedBuilder();
-        eb.setColor(Color.WHITE);
+        eb.setColor(Color.ORANGE);
         eb.setTitle("**Wiedergabeliste**");
         eb.setDescription("Das sind die nächsten Songs:");
         for(MusicSong song : queue){
@@ -50,6 +59,10 @@ public class QueueMusicCmd implements ServerCommand {
                 eb.addField(url + " (Noch nicht geladen)", "Hinzugefügt von `" + song.user.getName() + "`", false);
             }
 
+        }
+        if(remaining > 0){
+            eb.addBlankField(false);
+            eb.addField("Anzahl an weiteren Songs in der Liste: **" + remaining + "**", "", false);
         }
         eb.setFooter("Befehl '/queue'");
         eb.setTimestamp(new Date().toInstant());

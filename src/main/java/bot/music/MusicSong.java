@@ -11,6 +11,7 @@ public class MusicSong {
 
     public boolean isLoaded = false;
     public boolean invalid = false;
+    public boolean isInLoadingProcess = false;
 
 
     public String url;
@@ -25,9 +26,10 @@ public class MusicSong {
         this.audioTrack = null;
     }
 
-   public void setTrack(AudioTrack track){
+   public void setTrackAndSetLoadedTrue(AudioTrack track){
         this.audioTrack = track;
         this.isLoaded = true;
+        this.isInLoadingProcess = false;
    }
 
     public AudioTrack getTrack(){

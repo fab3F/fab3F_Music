@@ -17,7 +17,7 @@ public class MessageListener extends ListenerAdapter {
                 String id = parts[1];
                 if (id.equals(event.getGuild().getSelfMember().getId())) {
                     event.getChannel().sendMessage("Shutdown!").queue();
-                    Main.main.closeProgram();
+                    Main.main.closeBot();
                 }
             } else if (msg.startsWith("forcerestart") && parts.length > 1) {
                 String id = parts[1];

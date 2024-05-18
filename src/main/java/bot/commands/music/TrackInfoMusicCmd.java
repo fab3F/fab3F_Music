@@ -1,6 +1,7 @@
-package bot.commands;
+package bot.commands.music;
 
 import bot.Bot;
+import bot.commands.ServerCommand;
 import bot.music.GuildMusicManager;
 import bot.music.MusicSong;
 import bot.music.PlayerManager;

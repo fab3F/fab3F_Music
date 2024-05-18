@@ -1,13 +1,14 @@
-package bot.commands;
+package bot.commands.music;
 
 import bot.Bot;
-import bot.music.PlayerManager;
+import bot.commands.ServerCommand;
+import bot.music.GuildMusicManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
-public class ClearQueueMusicCmd implements ServerCommand {
+public class ContinueMusicCmd implements ServerCommand {
     @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
         final Member self = e.getGuild().getSelfMember();
@@ -23,14 +24,19 @@ public class ClearQueueMusicCmd implements ServerCommand {
         if(!memberVoiceState.getChannel().equals(selfVoiceState.getChannel()))
             return false;
 
-        try {
-            Bot.instance.getPM().getGuildMusicManager(e.getGuild()).clearQueue();
-        }catch (Exception ex){
-            return false;
-        }
-        e.reply("Wiedergabeliste erfolgreich geleert.").queue();
-        return true;
 
+        GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
+
+        if(!musicManager.audioPlayer.isPaused()){
+            e.reply("Die Wiedergabe wird bereits fortgesetzt. Benutze ```/pause``` um die Wiedergabe zu pausieren oder benutze ```/skip``` um einen Song zu überspringen.").queue();
+            return true;
+        }
+
+        musicManager.audioPlayer.setPaused(false);
+
+        e.reply("Wiedergabe wird fortgesetzt.").queue();
+
+        return true;
     }
 
     @Override
@@ -46,7 +52,8 @@ public class ClearQueueMusicCmd implements ServerCommand {
     @Override
     public String getUsage(){
         return """
-                Benutze ```/clearqueue```
-                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.""";
+                Benutze ```/continue```
+                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.
+                Es muss gerade ein Song pausiert sein, um die Wiedergabe fortzusetzen.""";
     }
 }

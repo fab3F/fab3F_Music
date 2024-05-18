@@ -3,6 +3,7 @@ package bot.music;
 import bot.Bot;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import general.Main;
 import net.dv8tion.jda.api.entities.Guild;
 
 public class GuildMusicManager implements Runnable {
@@ -31,7 +32,7 @@ public class GuildMusicManager implements Runnable {
         // Thread
         this.name = "GuildMusicManager for " + guild.getId() + " - " + guild.getName();
         Thread thread = new Thread(this, name);
-        System.out.println("[THREAD] Created Thread: " + thread);
+        Main.thread("Created Thread: " + thread);
         exitThread = false;
         thread.start();
     }
@@ -75,6 +76,7 @@ public class GuildMusicManager implements Runnable {
             }
 
         }
+        Main.thread(name + " has been Stopped.");
     }
 
 }

@@ -1,6 +1,7 @@
 package bot.music;
 
 import bot.Bot;
+import general.Main;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.apache.hc.core5.http.ParseException;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -42,22 +43,17 @@ public class LinkConverter {
         if(e.getGuild() == null)
             return;
 
-        if(Bot.instance.debug)
-            System.out.println("[DEBUG] Loading: " + input);
-
         GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
 
         if((input.startsWith("https") && input.contains("youtu.be/")) || (input.startsWith("https") && input.contains("spotify.link/")) ){
 
             input = this.expandURL(input);
 
-            if(Bot.instance.debug)
-                System.out.println("[DEBUG] Expanding URL: " + input);
+            Main.debug("Expanded URL: " + input);
 
             if(input.startsWith(ERROR_PREFIX)){
                 e.getHook().sendMessage(input.replaceAll("_ERR_", "")).queue();
-                if(Bot.instance.debug)
-                    System.out.println("[DEBUG] ERROR MESSAGE: " + input);
+                Main.debug("ERROR MESSAGE: " + input);
                 return;
             }
 
@@ -65,8 +61,7 @@ public class LinkConverter {
 
 
         if(input.startsWith("https") && input.contains("youtube.com/watch") && !input.contains("list=")){
-            if(Bot.instance.debug)
-                System.out.println("[DEBUG] Loading YT Video: " + input);
+            Main.debug("Loading YT Video: " + input);
             e.getHook().sendMessage("YouTube Song zur Wiedergabeliste hinzugefügt: " + input).queue();
             musicManager.scheduler.queue(new MusicSong(input, e.getChannel().asTextChannel(), e.getUser()), playAsFirst);
             return;
@@ -75,8 +70,7 @@ public class LinkConverter {
 
 
         else if(input.startsWith("https") && input.contains("youtube.com/") && input.contains("list=")){
-            if(Bot.instance.debug)
-                System.out.println("[DEBUG] Loading YT List: " + input);
+            Main.debug("Loading YT List: " + input);
             e.getHook().sendMessage("YouTube Playlist ist noch in Arbeit").queue();
             return;
             // Sonderfall: hier werden die Songs schon im Link Converter geladen
@@ -84,30 +78,26 @@ public class LinkConverter {
         }
 
         else if(input.startsWith("https") && input.contains("spotify.com/") && input.contains("/track/")){
-            if(Bot.instance.debug)
-                System.out.println("[DEBUG] Loading Spotify Song: " + input);
+            Main.debug("Loading Spotify Song: " + input);
 
             String song = this.loadSpotify(input).get(0);
             if(song.startsWith(ERROR_PREFIX)){
                 e.getHook().sendMessage(song.replaceAll("_ERR_", "")).queue();
-                if(Bot.instance.debug)
-                    System.out.println("[DEBUG] ERROR MESSAGE: " + song);
+                Main.debug("ERROR MESSAGE: " + song);
                 return;
             }
 
             musicManager.scheduler.queue(new MusicSong("ytsearch:" + song + " audio", e.getChannel().asTextChannel(), e.getUser()), playAsFirst);
             e.getHook().sendMessage("Spotify Song zur Wiedergabeliste hinzugefügt: " + input).queue();
 
-            if(Bot.instance.debug)
-                System.out.println("[DEBUG] Queued Spotify Song: " + input);
+            Main.debug("Queued Spotify Song: " + input);
 
             return;
         }
 
 
         else if(input.startsWith("https") && input.contains("spotify.com/") && input.contains("/playlist/")){
-            if(Bot.instance.debug)
-                System.out.println("[DEBUG] Loading Spotify List: " + input);
+            Main.debug("Loading Spotify List: " + input);
 
             e.getHook().sendMessage("Spotify Playlist wird geladen und zur Wiedergabeliste hinzugefügt, dies kann einige Sekunden dauern: " + input).queue();
             List<String> list = this.loadSpotify(input);
@@ -115,8 +105,7 @@ public class LinkConverter {
 
             if(list.get(0).startsWith(ERROR_PREFIX)){
                 e.getChannel().sendMessage(list.get(0).replaceAll("_ERR_", "")).queue();
-                if(Bot.instance.debug)
-                    System.out.println("[DEBUG] ERROR MESSAGE: " + list.get(0));
+                Main.debug("ERROR MESSAGE: " + list.get(0));
                 return;
             }
 
@@ -125,15 +114,13 @@ public class LinkConverter {
             }
             e.getChannel().sendMessage("Spotify Playlist wurde fertig geladen.").queue();
 
-            if(Bot.instance.debug)
-                System.out.println("[DEBUG] Queued Spotify List: " + input);
+            Main.debug("Queued Spotify List: " + input);
 
             return;
         }
 
         else{
-            if(Bot.instance.debug)
-                System.out.println("[DEBUG] Loading YT Search: " + input);
+            Main.debug("Loading YT Search: " + input);
             musicManager.scheduler.queue(new MusicSong("ytsearch:" + input + " audio", e.getChannel().asTextChannel(), e.getUser()), playAsFirst);
             e.getHook().sendMessage("Song zur Wiedergabeliste hinzugefügt: " + input).queue();
             return;
@@ -166,9 +153,9 @@ public class LinkConverter {
                 }
             }
             if(redirectCount != 999)
-                return "_ERR_ERROR 20: URL can't be converted.";
+                return "_ERR_ERROR 21: URL can't be converted.";
         } catch (IOException e) {
-            return "_ERR_ERROR 20: URL can't be converted.";
+            return "_ERR_ERROR 22: URL can't be converted.";
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -202,7 +189,7 @@ public class LinkConverter {
 
             return cleanedUrl.toString();
         } catch (Exception ex) {
-            return "_ERR_ERROR 21: URL can't be cleaned.";
+            return "_ERR_ERROR 23: URL can't be cleaned.";
         }
     }
 
@@ -211,11 +198,10 @@ public class LinkConverter {
             return true;
 
         this.spotifyApi = new SpotifyApi.Builder().setClientId(this.spotifyClientId).setClientSecret(this.spotifyClientSecret).build();
-
-        ClientCredentialsRequest.Builder request = new ClientCredentialsRequest.Builder(spotifyApi.getClientId(), spotifyApi.getClientSecret());
+        ClientCredentialsRequest request = this.spotifyApi.clientCredentials().build();
         ClientCredentials creds;
         try {
-            creds = request.grant_type("client_credentials").build().execute();
+            creds = request.execute();
         } catch (IOException | SpotifyWebApiException | ParseException ex) {
             this.spotifyApi = null;
             return false;

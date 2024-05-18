@@ -1,13 +1,13 @@
-package bot.commands;
+package bot.commands.music;
 
 import bot.Bot;
-import bot.music.GuildMusicManager;
+import bot.commands.ServerCommand;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
-public class ContinueMusicCmd implements ServerCommand {
+public class ClearQueueMusicCmd implements ServerCommand {
     @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
         final Member self = e.getGuild().getSelfMember();
@@ -23,19 +23,14 @@ public class ContinueMusicCmd implements ServerCommand {
         if(!memberVoiceState.getChannel().equals(selfVoiceState.getChannel()))
             return false;
 
-
-        GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
-
-        if(!musicManager.audioPlayer.isPaused()){
-            e.reply("Die Wiedergabe wird bereits fortgesetzt. Benutze ```/pause``` um die Wiedergabe zu pausieren oder benutze ```/skip``` um einen Song zu überspringen.").queue();
-            return true;
+        try {
+            Bot.instance.getPM().getGuildMusicManager(e.getGuild()).clearQueue();
+        }catch (Exception ex){
+            return false;
         }
-
-        musicManager.audioPlayer.setPaused(false);
-
-        e.reply("Wiedergabe wird fortgesetzt.").queue();
-
+        e.reply("Wiedergabeliste erfolgreich geleert.").queue();
         return true;
+
     }
 
     @Override
@@ -51,8 +46,7 @@ public class ContinueMusicCmd implements ServerCommand {
     @Override
     public String getUsage(){
         return """
-                Benutze ```/continue```
-                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.
-                Es muss gerade ein Song pausiert sein, um die Wiedergabe fortzusetzen.""";
+                Benutze ```/clearqueue```
+                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.""";
     }
 }

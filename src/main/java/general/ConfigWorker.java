@@ -12,7 +12,7 @@ import java.util.Scanner;
 
 public class ConfigWorker {
 
-    private final SyIO syIO= SyIO.getSyIO();
+    private final SyIO syIO = SyIO.getSyIO();
     private final String filesep = syIO.getFilesep();
     private final String configPath;
     public ConfigWorker(String configPath){
@@ -25,7 +25,7 @@ public class ConfigWorker {
 
     public List<String> getServerConfig(String guildId, String name){
         if(createConfigForServer(guildId)){
-            return getConfig(new File(configPath + filesep + "server" + filesep + guildId+".config"), name);
+            return getConfig(new File(configPath + filesep + "server" + filesep + guildId + ".config"), name);
         }
         return new ArrayList<>();
     }

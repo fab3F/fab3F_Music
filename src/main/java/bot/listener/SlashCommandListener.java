@@ -24,6 +24,7 @@ public class SlashCommandListener extends ListenerAdapter {
 
 
                 Commands.slash("ping", "Berechne den Ping des Bots"),
+                Commands.slash("help", "Ausführliche Hilfe und Erkläruingen für die Funktionen des Bots"),
 
                 Commands.slash("play", "Spiele einen Song oder eine Playlist ab")
                         .addOption(OptionType.STRING, "title", "Der Name oder die URL des Songs oder eine Spotify/YouTube Playlist", true),

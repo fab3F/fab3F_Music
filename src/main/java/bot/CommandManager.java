@@ -1,6 +1,8 @@
 package bot;
 
 import bot.commands.*;
+import bot.commands.music.*;
+import general.Main;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
@@ -35,7 +37,6 @@ public class CommandManager {
     }
 
     public void perform(SlashCommandInteractionEvent e) {
-
         String cmdName = e.getName();
         ServerCommand cmd = this.commands.get(cmdName);
 
@@ -74,7 +75,7 @@ public class CommandManager {
             try {
                 e.reply(cmd.getUsage().replace("{cmdName}", cmdName)).setEphemeral(true).queue();
             } catch (Exception ex) {
-                e.reply("Ein unbekannter Fehler ist aufgetreten.").setEphemeral(true).queue();
+                Main.error("Bei der Ausführung eines Befehls ist ein unbekannter Fehler aufgetreten: " + e.getId());
             }
         }
 

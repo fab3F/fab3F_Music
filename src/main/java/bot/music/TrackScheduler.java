@@ -96,7 +96,7 @@ public class TrackScheduler extends AudioEventAdapter {
         for(MusicSong song : new ArrayList<>(this.queue).subList(0, Math.min(queue.size(), this.aFew))){
             if(song.invalid){
                 this.queue.remove(song);
-            }else if(!song.isLoaded){
+            }else if(!song.isLoaded && !song.isInLoadingProcess){
                 Bot.instance.getPM().trackLoader.load(song);
             }
         }

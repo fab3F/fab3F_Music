@@ -1,13 +1,14 @@
-package bot.commands;
+package bot.commands.music;
 
 import bot.Bot;
-import bot.music.PlayerManager;
+import bot.commands.ServerCommand;
+import bot.music.GuildMusicManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
-public class StopMusicCmd implements ServerCommand {
+public class SkipMusicCmd implements ServerCommand {
     @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
         final Member self = e.getGuild().getSelfMember();
@@ -23,14 +24,18 @@ public class StopMusicCmd implements ServerCommand {
         if(!memberVoiceState.getChannel().equals(selfVoiceState.getChannel()))
             return false;
 
-        try {
-            Bot.instance.getPM().stopGuildMusicManager(e.getGuild().getId());
-        }catch (Exception ex){
-            return false;
-        }
-        e.reply("Wiedergabe gestoppt und Wiedergabeliste geleert.").queue();
-        return true;
 
+        GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
+
+
+        if(musicManager.audioPlayer.getPlayingTrack() == null)
+            return false;
+
+        musicManager.scheduler.nextSong(true);
+
+        e.reply("Aktueller Song wurde übersprungen.").queue();
+
+        return true;
     }
 
     @Override
@@ -46,7 +51,8 @@ public class StopMusicCmd implements ServerCommand {
     @Override
     public String getUsage(){
         return """
-                Benutze ```/stop```
-                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.""";
+                Benutze ```/skip```
+                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.
+                Es muss gerade ein Song abgespielt werden.""";
     }
 }

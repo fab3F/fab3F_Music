@@ -20,7 +20,7 @@ public class PlayerManager {
         AudioSourceManagers.registerRemoteSources(audioPlayerManager);
         AudioSourceManagers.registerLocalSource(audioPlayerManager);
         this.trackLoader = new TrackLoader(audioPlayerManager);
-        this.linkConverter = new LinkConverter(Bot.instance.configWorker.getBotConfig("spotifyClientId").get(0), Bot.instance.configWorker.getBotConfig("spotifyClientId").get(0));
+        this.linkConverter = new LinkConverter(Bot.instance.configWorker.getBotConfig("spotifyClientId").get(0), Bot.instance.configWorker.getBotConfig("spotifyClientSecret").get(0));
     }
 
 
