@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Main {
 
-    private static final String version = "2.1";
+    private static final String version = "2.2";
     private static final String configPath = "config";
 
     public static Main main;
@@ -24,28 +24,29 @@ public class Main {
 
     public Main(){
         this.configWorker = new ConfigWorker(configPath);
-        this.logger = new Logger(new File(cfg("logPath").get(0) + File.separator + new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss").format(new Date()) + "-bot.log"));
+        this.logger = new Logger(new File(cfg("logPath") + File.separator + new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss").format(new Date()) + "-bot.log"));
         Main.log("STARTING VERSION " + version);
-        debug = cfg("debug").get(0).equals("true");
-        String token = cfg("token").get(0);
+        debug = cfg("debug").equals("true");
+        String token = cfg("token");
         this.bot = new Bot(debug, token, this.configWorker);
     }
 
-    private List<String> cfg(String name){
+    private String cfg(String name){
         List<String> l = configWorker.getBotConfig(name);
         if(l.isEmpty()){
             Main.error("Config file not correct");
             System.exit(-1);
         }
-        return l;
+        return l.get(0);
     }
 
 
     public void restartBot(){
         this.bot.destroy();
 
-        boolean debug = cfg("debug").get(0).equals("true");
-        String token = cfg("token").get(0);
+        Main.log("RESTARTING VERSION " + version);
+        boolean debug = cfg("debug").equals("true");
+        String token = cfg("token");
         this.bot = new Bot(debug, token, this.configWorker);
     }
 
