@@ -30,12 +30,8 @@ bin/
 
 /.idea/
 
-/[logs]
 
+[logs]/
 /config
-
-/config/bot.config
-
 /target/
-
 /out
