@@ -51,17 +51,19 @@ public class QueueMusicCmd implements ServerCommand {
         eb.setColor(Color.ORANGE);
         eb.setTitle("**Wiedergabeliste**");
         eb.setDescription("Das sind die nächsten Songs:");
+        int i = 1;
         for(MusicSong song : queue){
+            String url;
             if(song.isLoaded){
-                eb.addField("**" + song.getTrack().getInfo().title + "**", "Hinzugefügt von `" + song.user.getName() + "`", false);
+                url = "**" + song.getTrack().getInfo().title + "**";
             }else{
-                String url = song.url.startsWith("ytsearch:") ? replaceLast(song.url.replaceFirst("ytsearch:", ""), " audio", "") : song.url;
-                eb.addField(url + " (Noch nicht geladen)", "Hinzugefügt von `" + song.user.getName() + "`", false);
+                url = (song.url.startsWith("ytsearch:") ? replaceLast(song.url.replaceFirst("ytsearch:", ""), " audio", "") : song.url) + " (Noch nicht geladen)";
             }
+            eb.addField("#" + i + " " + url, "Hinzugefügt von `" + song.user.getName() + "`", false);
+            i++;
 
         }
         if(remaining > 0){
-            eb.addBlankField(false);
             eb.addField("Anzahl an weiteren Songs in der Liste: **" + remaining + "**", "", false);
         }
         eb.setFooter("Befehl '/queue'");

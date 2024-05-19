@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Main {
 
-    private static final String version = "2.2";
+    private static final String version = "2.3";
     private static final String configPath = "config";
 
     public static Main main;

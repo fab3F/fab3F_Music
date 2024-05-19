@@ -8,8 +8,10 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import general.Main;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import org.apache.hc.core5.http.ParseException;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
@@ -56,14 +58,10 @@ public class LinkConverter {
 
             input = this.expandURL(input);
 
-            Main.debug("Expanded URL: " + input);
-
-            if(input.startsWith(ERROR_PREFIX)){
-                e.getHook().sendMessage(input.replaceAll("_ERR_", "")).queue();
-                Main.debug("ERROR MESSAGE: " + input);
+            if(error(e.getHook(), input))
                 return;
-            }
 
+            Main.debug("Expanded URL: " + input);
         }
 
 
@@ -79,33 +77,20 @@ public class LinkConverter {
             Main.debug("Loading YT List: " + input);
             e.getHook().sendMessage("YouTube Playlist wird geladen und zur Wiedergabeliste hinzugefügt, dies kann einige Sekunden dauern: " + input).queue();
 
-            String msg = this.loadYouTubePlaylist(input, e.getUser(), e.getChannel().asTextChannel(), musicManager);
-
-            if(msg.startsWith(ERROR_PREFIX)){
-                e.getChannel().sendMessage(msg.replaceAll("_ERR_", "")).queue();
-                Main.debug("ERROR MESSAGE: " + msg);
-            } else {
-                e.getChannel().sendMessage(msg).queue();
-            }
-
-
+            this.loadYouTubePlaylist(input, e.getUser(), e.getChannel().asTextChannel(), musicManager);
+            // result i handeled in function
         }
 
         else if(input.startsWith("https") && input.contains("spotify.com/") && input.contains("/track/")){
             Main.debug("Loading Spotify Song: " + input);
 
             String song = this.loadSpotify(input).get(0);
-            if(song.startsWith(ERROR_PREFIX)){
-                e.getHook().sendMessage(song.replaceAll("_ERR_", "")).queue();
-                Main.debug("ERROR MESSAGE: " + song);
+            if(error(e.getHook(), song))
                 return;
-            }
 
             musicManager.scheduler.queue(new MusicSong("ytsearch:" + song + " audio", e.getChannel().asTextChannel(), e.getUser()), playAsFirst);
             e.getHook().sendMessage("Spotify Song zur Wiedergabeliste hinzugefügt: " + input).queue();
-
             Main.debug("Queued Spotify Song: " + input);
-
         }
 
 
@@ -115,18 +100,13 @@ public class LinkConverter {
             e.getHook().sendMessage("Spotify Playlist wird geladen und zur Wiedergabeliste hinzugefügt, dies kann einige Sekunden dauern: " + input).queue();
             List<String> list = this.loadSpotify(input);
 
-
-            if(list.get(0).startsWith(ERROR_PREFIX)){
-                e.getChannel().sendMessage(list.get(0).replaceAll("_ERR_", "")).queue();
-                Main.debug("ERROR MESSAGE: " + list.get(0));
+            if(error(e.getChannel().asTextChannel(), list.get(0)))
                 return;
-            }
 
             for(String name : list){
                 musicManager.scheduler.queue(new MusicSong("ytsearch:" + name + " audio", e.getChannel().asTextChannel(), e.getUser()), false);
             }
             e.getChannel().sendMessage("Spotify Playlist wurde fertig geladen.").queue();
-
             Main.debug("Queued Spotify List: " + input);
 
         }
@@ -135,7 +115,6 @@ public class LinkConverter {
             Main.debug("Loading YT Search: " + input);
             musicManager.scheduler.queue(new MusicSong("ytsearch:" + input + " audio", e.getChannel().asTextChannel(), e.getUser()), playAsFirst);
             e.getHook().sendMessage("Song zur Wiedergabeliste hinzugefügt: " + input).queue();
-
         }
     }
 
@@ -165,9 +144,9 @@ public class LinkConverter {
                 }
             }
             if(redirectCount != 999)
-                return "_ERR_ERROR 21: URL cannot be converted. Too many redirects.";
+                return "_ERR_ERROR 21: URL cannot be converted. Too many redirects: " + shortUrl;
         } catch (IOException e) {
-            return "_ERR_ERROR 22: URL cannot be converted.";
+            return "_ERR_ERROR 22: URL cannot be converted: " + shortUrl;
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -201,7 +180,7 @@ public class LinkConverter {
 
             return cleanedUrl.toString();
         } catch (Exception ex) {
-            return "_ERR_ERROR 23: URL cannot be cleaned.";
+            return "_ERR_ERROR 23: URL cannot be cleaned: " + expandedUrl;
         }
     }
 
@@ -245,6 +224,7 @@ public class LinkConverter {
     }
 
     private ArrayList<String> loadSpotify(String link){
+        link = link.replaceFirst("\\?.*$", "");
         ArrayList<String> listOfTracks = new ArrayList<>();
 
         if(!initializeSpotify()){
@@ -298,40 +278,67 @@ public class LinkConverter {
     }
 
 
-    private String loadYouTubePlaylist(String link, User user, TextChannel channel, GuildMusicManager musicManager){
-        final String[] back = {"_ERR_ERROR 60: YouTube Playlist cannot be loaded."};
+    private void loadYouTubePlaylist(String link, User user, TextChannel channel, GuildMusicManager musicManager) {
 
         Bot.instance.getPM().getAudioPlayerManager().loadItemOrdered(musicManager, link, new AudioLoadResultHandler() {
+
             @Override
             public void trackLoaded(AudioTrack audioTrack) {
-                back[0] =  "_ERR_ERROR 61: YouTube Playlist should be loaded but single AudioTrack was loaded.";
+                handleYTListLoadingResult(channel, "_ERR_ERROR 61: YouTube Playlist should be loaded but single AudioTrack was loaded.");
             }
 
             @Override
             public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                String msg;
                 final List<AudioTrack> tracks = audioPlaylist.getTracks();
                 if (!tracks.isEmpty()) {
-                    for(AudioTrack track : tracks){
+                    for (AudioTrack track : tracks) {
                         musicManager.scheduler.queue(new MusicSong(track, channel, user), false);
                     }
-                    back[0] = "YouTube Playlist wurde fertig geladen.";
-                } else{
-                    back[0] = "_ERR_ERROR 62: YouTube Playlist should be loaded but AudioPlaylist was empty.";
+                    msg = "YouTube Playlist wurde fertig geladen.";
+                } else {
+                    msg = "_ERR_ERROR 62: YouTube Playlist should be loaded but AudioPlaylist was empty.";
                 }
+                handleYTListLoadingResult(channel, msg);
             }
 
             @Override
             public void noMatches() {
-                back[0] = "Keine Ergebnisse gefunden für folgende Eingabe: " + link;
+                handleYTListLoadingResult(channel, "Keine Ergebnisse gefunden für folgende Eingabe: " + link);
             }
 
             @Override
             public void loadFailed(FriendlyException ex) {
-                back[0] = "Beim Laden einer YouTube Playlist ist ein Fehler aufgetreten. Stelle sicher, dass sie nicht auf privat gestellt ist. Eingabe: " + link;
+                handleYTListLoadingResult(channel, "Beim Laden einer YouTube Playlist ist ein Fehler aufgetreten. Stelle sicher, dass sie nicht auf privat gestellt ist. Eingabe: " + link);
             }
         });
+    }
 
-        return back[0];
+    private void handleYTListLoadingResult(TextChannel channel, String msg) {
+        if (msg.startsWith(ERROR_PREFIX)) {
+            channel.sendMessage(msg.replace(ERROR_PREFIX, "")).queue();
+            Main.debug("ERROR MESSAGE: " + msg);
+        } else {
+            channel.sendMessage(msg).queue();
+        }
+    }
+
+    private boolean error(InteractionHook hook, String msg) {
+        if (msg.startsWith(ERROR_PREFIX)) {
+            hook.sendMessage(msg.replace(ERROR_PREFIX, "")).queue();
+            Main.debug("ERROR MESSAGE: " + msg);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean error(TextChannel channel, String msg) {
+        if (msg.startsWith(ERROR_PREFIX)) {
+            channel.sendMessage(msg.replace(ERROR_PREFIX, "")).queue();
+            Main.debug("ERROR MESSAGE: " + msg);
+            return true;
+        }
+        return false;
     }
 
 
