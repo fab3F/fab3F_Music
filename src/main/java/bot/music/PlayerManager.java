@@ -63,8 +63,6 @@ public class PlayerManager {
 
     }
 
-    public int numberOfGMMs(){
-        return this.guildMusicManagers.size();
-    }
+    public AudioPlayerManager getAudioPlayerManager(){return this.audioPlayerManager;}
 
 }

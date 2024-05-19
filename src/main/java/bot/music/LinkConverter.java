@@ -1,7 +1,14 @@
 package bot.music;
 
 import bot.Bot;
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import general.Main;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.apache.hc.core5.http.ParseException;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -64,16 +71,23 @@ public class LinkConverter {
             Main.debug("Loading YT Video: " + input);
             e.getHook().sendMessage("YouTube Song zur Wiedergabeliste hinzugefügt: " + input).queue();
             musicManager.scheduler.queue(new MusicSong(input, e.getChannel().asTextChannel(), e.getUser()), playAsFirst);
-            return;
         }
 
 
 
         else if(input.startsWith("https") && input.contains("youtube.com/") && input.contains("list=")){
             Main.debug("Loading YT List: " + input);
-            e.getHook().sendMessage("YouTube Playlist ist noch in Arbeit").queue();
-            return;
-            // Sonderfall: hier werden die Songs schon im Link Converter geladen
+            e.getHook().sendMessage("YouTube Playlist wird geladen und zur Wiedergabeliste hinzugefügt, dies kann einige Sekunden dauern: " + input).queue();
+
+            String msg = this.loadYouTubePlaylist(input, e.getUser(), e.getChannel().asTextChannel(), musicManager);
+
+            if(msg.startsWith(ERROR_PREFIX)){
+                e.getChannel().sendMessage(msg.replaceAll("_ERR_", "")).queue();
+                Main.debug("ERROR MESSAGE: " + msg);
+            } else {
+                e.getChannel().sendMessage(msg).queue();
+            }
+
 
         }
 
@@ -92,7 +106,6 @@ public class LinkConverter {
 
             Main.debug("Queued Spotify Song: " + input);
 
-            return;
         }
 
 
@@ -116,14 +129,13 @@ public class LinkConverter {
 
             Main.debug("Queued Spotify List: " + input);
 
-            return;
         }
 
         else{
             Main.debug("Loading YT Search: " + input);
             musicManager.scheduler.queue(new MusicSong("ytsearch:" + input + " audio", e.getChannel().asTextChannel(), e.getUser()), playAsFirst);
             e.getHook().sendMessage("Song zur Wiedergabeliste hinzugefügt: " + input).queue();
-            return;
+
         }
     }
 
@@ -149,13 +161,13 @@ public class LinkConverter {
                     expandedUrl = shortUrl;
                     redirectCount = 999;
                 } else {
-                    return "_ERR_ERROR 20: URL can't be converted.";
+                    return "_ERR_ERROR 20: URL cannot be converted. Request returend following response code: " + responseCode;
                 }
             }
             if(redirectCount != 999)
-                return "_ERR_ERROR 21: URL can't be converted.";
+                return "_ERR_ERROR 21: URL cannot be converted. Too many redirects.";
         } catch (IOException e) {
-            return "_ERR_ERROR 22: URL can't be converted.";
+            return "_ERR_ERROR 22: URL cannot be converted.";
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -189,7 +201,7 @@ public class LinkConverter {
 
             return cleanedUrl.toString();
         } catch (Exception ex) {
-            return "_ERR_ERROR 23: URL can't be cleaned.";
+            return "_ERR_ERROR 23: URL cannot be cleaned.";
         }
     }
 
@@ -219,7 +231,7 @@ public class LinkConverter {
         try{
             track = trackRequest.execute();
         }catch (IOException | ParseException | SpotifyWebApiException e){
-            return "_ERR_ERROR 41: Spotify Track request was not successful.";
+            return "_ERR_ERROR 41: Spotify track request was not successful.";
         }
 
         artistNameAndTrackName = new StringBuilder(track.getName() + " - ");
@@ -236,7 +248,7 @@ public class LinkConverter {
         ArrayList<String> listOfTracks = new ArrayList<>();
 
         if(!initializeSpotify()){
-            listOfTracks.add("_ERR_ERROR 40: Cant connect with Spotify API.");
+            listOfTracks.add("_ERR_ERROR 40: Cannot connect with Spotify API.");
             return listOfTracks;
         }
 
@@ -258,7 +270,7 @@ public class LinkConverter {
             try{
                 playlist = playlistRequest.execute();
             }catch (IOException | ParseException | SpotifyWebApiException e){
-                listOfTracks.add("_ERR_ERROR 42: Spotify Playlist request was not successful.");
+                listOfTracks.add("_ERR_ERROR 42: Spotify playlist request was not successful. The playlist may be set to private.");
                 return listOfTracks;
             }
             Paging<PlaylistTrack> playlistPaging = playlist.getTracks();
@@ -274,15 +286,52 @@ public class LinkConverter {
 
             }
             if(listOfTracks.isEmpty()){
-                listOfTracks.add("_ERR_ERROR 45: No Track from Spotify Playlist could be loaded.");
+                listOfTracks.add("_ERR_ERROR 45: No track from Spotify playlist could be loaded.");
             }
             return listOfTracks;
         } else {
-            listOfTracks.add("_ERR_ERROR 46: Spotify Link was not valid.");
+            listOfTracks.add("_ERR_ERROR 46: Spotify link was not valid.");
             return listOfTracks;
         }
 
 
+    }
+
+
+    private String loadYouTubePlaylist(String link, User user, TextChannel channel, GuildMusicManager musicManager){
+        final String[] back = {"_ERR_ERROR 60: YouTube Playlist cannot be loaded."};
+
+        Bot.instance.getPM().getAudioPlayerManager().loadItemOrdered(musicManager, link, new AudioLoadResultHandler() {
+            @Override
+            public void trackLoaded(AudioTrack audioTrack) {
+                back[0] =  "_ERR_ERROR 61: YouTube Playlist should be loaded but single AudioTrack was loaded.";
+            }
+
+            @Override
+            public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                final List<AudioTrack> tracks = audioPlaylist.getTracks();
+                if (!tracks.isEmpty()) {
+                    for(AudioTrack track : tracks){
+                        musicManager.scheduler.queue(new MusicSong(track, channel, user), false);
+                    }
+                    back[0] = "YouTube Playlist wurde fertig geladen.";
+                } else{
+                    back[0] = "_ERR_ERROR 62: YouTube Playlist should be loaded but AudioPlaylist was empty.";
+                }
+            }
+
+            @Override
+            public void noMatches() {
+                back[0] = "Keine Ergebnisse gefunden für folgende Eingabe: " + link;
+            }
+
+            @Override
+            public void loadFailed(FriendlyException ex) {
+                back[0] = "Beim Laden einer YouTube Playlist ist ein Fehler aufgetreten. Stelle sicher, dass sie nicht auf privat gestellt ist. Eingabe: " + link;
+            }
+        });
+
+        return back[0];
     }
 
 

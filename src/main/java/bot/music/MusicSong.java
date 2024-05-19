@@ -26,6 +26,13 @@ public class MusicSong {
         this.audioTrack = null;
     }
 
+    public MusicSong(AudioTrack track, TextChannel textChannel, User user){
+        this.audioTrack = track;
+        this.isLoaded = true;
+        this.channel = textChannel;
+        this.user = user;
+    }
+
    public void setTrackAndSetLoadedTrue(AudioTrack track){
         this.audioTrack = track;
         this.isLoaded = true;
