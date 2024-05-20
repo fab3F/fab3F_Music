@@ -36,7 +36,8 @@ public class LinkConverter {
     private final String spotifyClientSecret;
     private SpotifyApi spotifyApi;
 
-    private final String ERROR_PREFIX = "_ERR_ERROR";
+    public static final String ERROR_PREFIX = "_ERR_ERROR";
+    public static final Pattern YOUTUBE_VIDEO_ID_PATTERN = Pattern.compile("(?:https?://)?(?:www\\.)?(?:youtube\\.com|youtu\\.be)/(?:.*[?&]v=|v/|embed/|watch\\?v=|.*#.*/)?([^&\\n?#]+)");
 
     public LinkConverter(String spotifyClientId, String spotifyClienSecret){
         this.spotifyClientId = spotifyClientId;
@@ -53,6 +54,11 @@ public class LinkConverter {
             return;
 
         GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
+
+        Matcher matcher = YOUTUBE_VIDEO_ID_PATTERN.matcher(input);
+        if(matcher.find()){
+            input =  "https://www.youtube.com/watch?v=" + matcher.group(1);
+        }
 
         if((input.startsWith("https") && input.contains("youtu.be/")) || (input.startsWith("https") && input.contains("spotify.link/")) ){
 

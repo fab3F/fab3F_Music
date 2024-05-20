@@ -3,8 +3,10 @@ package bot.commands.music;
 import bot.Bot;
 import bot.commands.ServerCommand;
 import bot.music.GuildMusicManager;
+import bot.music.LinkConverter;
 import bot.music.MusicSong;
 import bot.music.PlayerManager;
+import general.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -13,6 +15,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 import java.awt.*;
 import java.util.Date;
+import java.util.regex.Matcher;
 
 public class TrackInfoMusicCmd implements ServerCommand {
 
@@ -65,7 +68,12 @@ public class TrackInfoMusicCmd implements ServerCommand {
         }
 
         eb.addField("Länge", "**`" + length + "`**", false);
-        eb.addField("URL", last.getTrack().getInfo().uri, false);
+        String uri = last.getTrack().getInfo().uri;
+        eb.addField("URL", uri, false);
+        Matcher matcher = LinkConverter.YOUTUBE_VIDEO_ID_PATTERN.matcher(uri);
+        if(matcher.find()){
+            eb.setThumbnail("https://img.youtube.com/vi/" + matcher.group(1) + "/0.jpg");
+        }
         eb.addField("Hinzugefügt von", "**`" + last.user.getName() + "`**", false);
         eb.setFooter("Befehl '/trackinfo'");
         eb.setTimestamp(new Date().toInstant());
