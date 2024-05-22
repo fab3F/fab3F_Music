@@ -75,7 +75,7 @@ public class CommandManager {
             try {
                 e.reply(cmd.getUsage().replace("{cmdName}", cmdName)).setEphemeral(true).queue();
             } catch (Exception ex) {
-                Main.error("Bei der Ausführung eines Befehls ist ein unbekannter Fehler aufgetreten: " + e.getId());
+                Main.error("Bei der Ausführung eines Befehls ist ein unbekannter Fehler aufgetreten: " + e.getCommandString() + "\n" + e.getChannel().getName());
             }
         }
 
