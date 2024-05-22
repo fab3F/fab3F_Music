@@ -17,7 +17,7 @@ public class CommandManager {
         this.commands = new ConcurrentHashMap<>();
 
         this.commands.put("ping", new PingCmd());
-
+        this.commands.put("help", new HelpCommand());
 
         this.commands.put("play", new PlayMusicCmd());
         this.commands.put("playnow", new PlayNowMusicCmd());
