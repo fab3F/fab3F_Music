@@ -41,8 +41,8 @@ public class SlashCommandListener extends ListenerAdapter {
                 Commands.slash("skip", "Überspringt den aktuellen Song"),
                 Commands.slash("stop", "Stoppt die Musik und löscht die Wiedergabeliste"),
                 Commands.slash("trackinfo", "Informationen zu dem Lied, was gerade abgespielt wird"),
-                Commands.slash("volume", "Ändere allgemeine Lautstärke des Bots")
-                        .addOption(OptionType.INTEGER, "value", "Wert zwischen 0 und 100")
+                Commands.slash("volume", "Ändere oder erhalte allgemeine Lautstärke des Bots")
+                        .addOption(OptionType.INTEGER, "value", "Wert zwischen 0 und 100", false)
 
 
 
