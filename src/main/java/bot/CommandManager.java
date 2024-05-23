@@ -31,6 +31,7 @@ public class CommandManager {
         this.commands.put("repeat", new RepeatMusicCmd());
         this.commands.put("skip", new SkipMusicCmd());
         this.commands.put("stop", new StopMusicCmd());
+        this.commands.put("leave", new StopMusicCmd());
         this.commands.put("trackinfo", new TrackInfoMusicCmd());
         this.commands.put("volume", new VolumeMusicCmd());
 

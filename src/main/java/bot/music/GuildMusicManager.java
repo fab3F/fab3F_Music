@@ -13,6 +13,7 @@ public class GuildMusicManager implements Runnable {
     private boolean exitThread;
 
     private Guild guild;
+    private int volume;
 
     public AudioPlayer audioPlayer;
     public TrackScheduler scheduler;
@@ -26,6 +27,8 @@ public class GuildMusicManager implements Runnable {
         this.sendHandler = new AudioPlayerSendHandler(this.audioPlayer);
 
         this.guild = guild;
+        this.volume = 100;
+        this.audioPlayer.setVolume(100);
 
         this.guild.getAudioManager().setSendingHandler(this.sendHandler);
 
@@ -56,6 +59,15 @@ public class GuildMusicManager implements Runnable {
 
     public void clearQueue(){
         this.scheduler.clearQueue();
+    }
+
+    public void setVolume(int volume){
+        this.volume = volume;
+        this.audioPlayer.setVolume(this.volume);
+    }
+
+    public int getVolume(){
+        return this.volume;
     }
 
 

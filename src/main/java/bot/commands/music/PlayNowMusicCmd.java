@@ -2,7 +2,6 @@ package bot.commands.music;
 
 import bot.Bot;
 import bot.commands.ServerCommand;
-import bot.music.PlayerManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
