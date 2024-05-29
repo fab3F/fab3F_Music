@@ -2,6 +2,7 @@ package bot.commands.music;
 
 import bot.Bot;
 import bot.commands.ServerCommand;
+import bot.permissionsystem.BotPermission;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -54,8 +55,8 @@ public class PlayMusicCmd implements ServerCommand {
     }
 
     @Override
-    public Permission[] getNeededPermissions() {
-        return new Permission[]{Permission.VOICE_CONNECT, Permission.VOICE_SPEAK};
+    public BotPermission getNeededPermission() {
+        return BotPermission.MUSIC_NORMAL;
     }
 
     @Override

@@ -2,6 +2,8 @@ package bot;
 
 import bot.commands.*;
 import bot.commands.music.*;
+import bot.permissionsystem.BotPermission;
+import bot.permissionsystem.PermissionWorker;
 import general.Main;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -57,18 +59,9 @@ public class CommandManager {
             return;
         }
 
-        boolean hasPerm = true;
-        StringBuilder neededPerms = new StringBuilder();
-        neededPerms.append("Dir fehlen eine oder mehrere der folgenden Berechtigungen, um diesen Befehl auszuführen: ").append("\n").append("```");
-        for(Permission p : cmd.getNeededPermissions()){
-            neededPerms.append(p.getName()).append("\n");
-            if(!e.getMember().hasPermission(p)){
-                hasPerm = false;
-            }
-        }
-        if(!hasPerm){
-            neededPerms.append("```");
-            e.reply(neededPerms.toString()).setEphemeral(true).queue();
+        BotPermission neededPerm = cmd.getNeededPermission();
+        if(!Bot.instance.pW.hasBotPermission(e.getMember(), neededPerm)){
+            e.reply("Dir fehlt folgende Berechtigung, um diesen Befehl auszuführen: " + neededPerm + " - " + neededPerm.getDescription()).setEphemeral(true).queue();
             return;
         }
 

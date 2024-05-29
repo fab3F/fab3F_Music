@@ -3,6 +3,7 @@ package bot.commands.music;
 import bot.Bot;
 import bot.commands.ServerCommand;
 import bot.music.GuildMusicManager;
+import bot.permissionsystem.BotPermission;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
@@ -46,15 +47,15 @@ public class BassBoostMusicCmd implements ServerCommand {
     }
 
     @Override
-    public Permission[] getNeededPermissions() {
-        return new Permission[]{Permission.VOICE_CONNECT, Permission.VOICE_SPEAK};
+    public BotPermission getNeededPermission() {
+        return BotPermission.MUSIC_ADVANCED;
     }
 
     @Override
     public String getUsage() {
         return """
-                Benutze ```/volume <value>```
+                Benutze ```/bassboost <value>```
                 Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.
-                Der Wert muss zwischen 0 und 100 liegen.""";
+                Der Wert muss zwischen 0 und 200 liegen.""";
     }
 }

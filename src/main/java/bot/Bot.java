@@ -4,6 +4,7 @@ import bot.listener.ChannelListener;
 import bot.listener.MessageListener;
 import bot.listener.SlashCommandListener;
 import bot.music.PlayerManager;
+import bot.permissionsystem.PermissionWorker;
 import general.ConfigWorker;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -23,6 +24,8 @@ public class Bot {
 
     private PlayerManager playerManager;
 
+    public PermissionWorker pW;
+
     public Bot(boolean debug, String token, ConfigWorker configWorker){
         instance = this;
         this.commandManager = new CommandManager();
@@ -41,6 +44,7 @@ public class Bot {
         this.shardManager = builder.build();
 
         this.playerManager = new PlayerManager();
+        this.pW = new PermissionWorker();
     }
 
     public CommandManager getCommandManager(){return this.commandManager;}

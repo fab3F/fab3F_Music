@@ -5,6 +5,7 @@ import bot.commands.ServerCommand;
 import bot.music.GuildMusicManager;
 import bot.music.PlayerManager;
 import bot.music.TrackScheduler;
+import bot.permissionsystem.BotPermission;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
@@ -50,8 +51,8 @@ public class RepeatMusicCmd implements ServerCommand {
     }
 
     @Override
-    public Permission[] getNeededPermissions() {
-        return new Permission[]{Permission.VOICE_CONNECT, Permission.VOICE_SPEAK};
+    public BotPermission getNeededPermission() {
+        return BotPermission.MUSIC_ADVANCED;
     }
 
     @Override

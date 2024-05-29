@@ -6,6 +6,7 @@ import bot.music.GuildMusicManager;
 import bot.music.LinkConverter;
 import bot.music.MusicSong;
 import bot.music.PlayerManager;
+import bot.permissionsystem.BotPermission;
 import general.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -89,8 +90,8 @@ public class TrackInfoMusicCmd implements ServerCommand {
     }
 
     @Override
-    public Permission[] getNeededPermissions() {
-        return new Permission[]{Permission.VOICE_CONNECT};
+    public BotPermission getNeededPermission() {
+        return BotPermission.MUSIC_NORMAL;
     }
 
     @Override
