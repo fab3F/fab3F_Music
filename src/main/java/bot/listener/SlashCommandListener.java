@@ -43,7 +43,9 @@ public class SlashCommandListener extends ListenerAdapter {
                 Commands.slash("leave", "Stoppt die Musik und löscht die Wiedergabeliste"),
                 Commands.slash("trackinfo", "Informationen zu dem Lied, was gerade abgespielt wird"),
                 Commands.slash("volume", "Ändere oder erhalte allgemeine Lautstärke des Bots")
-                        .addOption(OptionType.INTEGER, "value", "Wert zwischen 0 und 100", false)
+                        .addOption(OptionType.INTEGER, "value", "Wert zwischen 0 und 100 (Prozent)", false),
+                Commands.slash("bassboost", "Booste den Bass des Bots")
+                        .addOption(OptionType.INTEGER, "value", "Wert zwischen 0 und 200 (Prozent)", false)
 
 
 

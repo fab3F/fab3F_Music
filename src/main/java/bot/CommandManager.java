@@ -34,7 +34,7 @@ public class CommandManager {
         this.commands.put("leave", new StopMusicCmd());
         this.commands.put("trackinfo", new TrackInfoMusicCmd());
         this.commands.put("volume", new VolumeMusicCmd());
-
+        this.commands.put("bassboost", new BassBoostMusicCmd());
 
     }
 

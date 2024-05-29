@@ -1,6 +1,6 @@
 package bot.music;
 
-import bot.Bot;
+import com.sedmelluq.discord.lavaplayer.filter.equalizer.EqualizerFactory;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import general.Main;
@@ -14,6 +14,7 @@ public class GuildMusicManager implements Runnable {
 
     private Guild guild;
     private int volume;
+    private EqualizerFactory equalizer;
 
     public AudioPlayer audioPlayer;
     public TrackScheduler scheduler;
@@ -29,6 +30,10 @@ public class GuildMusicManager implements Runnable {
         this.guild = guild;
         this.volume = 100;
         this.audioPlayer.setVolume(100);
+
+        this.equalizer = new EqualizerFactory();
+        this.audioPlayer.setFilterFactory(this.equalizer);
+        this.audioPlayer.setFrameBufferDuration(500);
 
         this.guild.getAudioManager().setSendingHandler(this.sendHandler);
 
@@ -90,5 +95,30 @@ public class GuildMusicManager implements Runnable {
         }
         Main.thread(name + " has been Stopped.");
     }
+
+    public void setBassBost(float percentage){
+        final float multiplier = percentage / 100.00f;
+        for (int i = 0; i < BASS_BOOST.length; i++){
+            this.equalizer.setGain(i, BASS_BOOST[i] * multiplier);
+        }
+    }
+
+    private static final float[] BASS_BOOST = {
+            0.2f,
+            0.15f,
+            0.1f,
+            0.05f,
+            0.0f,
+            -0.05f,
+            -0.1f,
+            -0.1f,
+            -0.1f,
+            -0.1f,
+            -0.1f,
+            -0.1f,
+            -0.1f,
+            -0.1f,
+            -0.1f
+    };
 
 }
