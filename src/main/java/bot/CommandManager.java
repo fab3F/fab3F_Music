@@ -61,7 +61,7 @@ public class CommandManager {
 
         BotPermission neededPerm = cmd.getNeededPermission();
         if(!Bot.instance.pW.hasBotPermission(e.getMember(), neededPerm)){
-            e.reply("Dir fehlt folgende Berechtigung, um diesen Befehl auszuführen: " + neededPerm + " - " + neededPerm.getDescription()).setEphemeral(true).queue();
+            e.reply("Dir fehlt folgende Berechtigung, um diesen Befehl auszuführen: " + neededPerm.name() + " - " + neededPerm.getDescription()).setEphemeral(true).queue();
             return;
         }
 
