@@ -58,19 +58,19 @@ public class Main {
 
     public static void debug(String message){
         if(main.debug)
-            System.out.println("[" + new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss").format(new Date()) + "-DEBUG] " + message);
+            System.out.println(new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss").format(new Date()) + " [DEBUG] " + message);
     }
 
     public static void error(String message){
-        System.err.println("[" + new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss").format(new Date()) + "-ERROR] " + message);
+        System.err.println(new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss").format(new Date()) + " [ERROR] " + message);
     }
 
     public static void thread(String message){
-        System.out.println("[" + new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss").format(new Date()) + "-THREAD] " + message);
+        System.out.println(new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss").format(new Date()) + " [THREAD] " + message);
     }
 
     public static void log(String message){
-        System.out.println("[" + new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss").format(new Date()) + "-LOG] " + message);
+        System.out.println(new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss").format(new Date()) + " [LOG] " + message);
     }
 
 

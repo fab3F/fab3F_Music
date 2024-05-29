@@ -4,6 +4,7 @@ import bot.Bot;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.HashMap;
@@ -17,6 +18,8 @@ public class PlayerManager {
     public LinkConverter linkConverter;
 
     public PlayerManager() {
+
+        audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager(true));
         AudioSourceManagers.registerRemoteSources(audioPlayerManager);
         AudioSourceManagers.registerLocalSource(audioPlayerManager);
         this.trackLoader = new TrackLoader(audioPlayerManager);
