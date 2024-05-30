@@ -2,27 +2,15 @@ package bot.commands.music;
 
 import bot.Bot;
 import bot.commands.ServerCommand;
+import bot.commands.VoiceStates;
 import bot.music.GuildMusicManager;
 import bot.permissionsystem.BotPermission;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 public class ContinueMusicCmd implements ServerCommand {
     @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
-        final Member self = e.getGuild().getSelfMember();
-        final GuildVoiceState selfVoiceState = self.getVoiceState();
-        final Member member = e.getMember();
-        final GuildVoiceState memberVoiceState = member.getVoiceState();
-
-
-        if(!selfVoiceState.inAudioChannel())
-            return false;
-        if(!memberVoiceState.inAudioChannel())
-            return false;
-        if(!memberVoiceState.getChannel().equals(selfVoiceState.getChannel()))
+        if(!VoiceStates.inSameVoiceChannel(e.getGuild().getSelfMember(), e.getMember()))
             return false;
 
 

@@ -1,10 +1,7 @@
 package bot.music;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-
-import java.util.List;
 
 
 public class MusicSong {
@@ -16,17 +13,17 @@ public class MusicSong {
 
     public String url;
     public TextChannel channel;
-    public User user;
+    public String user;
     private AudioTrack audioTrack;
 
-    public MusicSong(String url, TextChannel textChannel, User user){
+    public MusicSong(String url, TextChannel textChannel, String user){
         this.url = url;
         this.channel = textChannel;
         this.user = user;
         this.audioTrack = null;
     }
 
-    public MusicSong(AudioTrack track, TextChannel textChannel, User user){
+    public MusicSong(AudioTrack track, TextChannel textChannel, String user){
         this.audioTrack = track;
         this.isLoaded = true;
         this.channel = textChannel;

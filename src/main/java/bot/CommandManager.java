@@ -1,11 +1,11 @@
 package bot;
 
-import bot.commands.*;
+import bot.commands.HelpCommand;
+import bot.commands.PingCmd;
+import bot.commands.ServerCommand;
 import bot.commands.music.*;
 import bot.permissionsystem.BotPermission;
-import bot.permissionsystem.PermissionWorker;
 import general.Main;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 import java.util.concurrent.ConcurrentHashMap;

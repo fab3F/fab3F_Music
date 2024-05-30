@@ -12,9 +12,10 @@ public class GuildMusicManager implements Runnable {
     private final String name;
     private boolean exitThread;
 
-    private Guild guild;
+    private final Guild guild;
     private int volume;
-    private EqualizerFactory equalizer;
+    private final EqualizerFactory equalizer;
+    private static final float[] BASS_BOOST = {0.2f, 0.15f, 0.1f, 0.05f, 0.0f, -0.05f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f};
 
     public AudioPlayer audioPlayer;
     public TrackScheduler scheduler;
@@ -103,22 +104,5 @@ public class GuildMusicManager implements Runnable {
         }
     }
 
-    private static final float[] BASS_BOOST = {
-            0.2f,
-            0.15f,
-            0.1f,
-            0.05f,
-            0.0f,
-            -0.05f,
-            -0.1f,
-            -0.1f,
-            -0.1f,
-            -0.1f,
-            -0.1f,
-            -0.1f,
-            -0.1f,
-            -0.1f,
-            -0.1f
-    };
 
 }

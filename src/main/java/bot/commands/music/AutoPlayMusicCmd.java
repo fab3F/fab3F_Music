@@ -7,7 +7,7 @@ import bot.music.GuildMusicManager;
 import bot.permissionsystem.BotPermission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
-public class PauseMusicCmd implements ServerCommand {
+public class AutoPlayMusicCmd implements ServerCommand {
     @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
         if(!VoiceStates.inSameVoiceChannel(e.getGuild().getSelfMember(), e.getMember()))
@@ -16,18 +16,12 @@ public class PauseMusicCmd implements ServerCommand {
 
         GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
 
-
-        if(musicManager.audioPlayer.getPlayingTrack() == null)
-            return false;
-
-        if(musicManager.audioPlayer.isPaused()){
-            e.reply("Die Wiedergabe ist bereits pausiert. Benutze ```/continue``` um die Wiedergabe fortzusetzen.").queue();
-            return true;
+        boolean autoplay = musicManager.scheduler.toogleAutoPlay();
+        if(autoplay){
+            e.reply("Autoplay wurde aktiviert.").queue();
+        }else{
+            e.reply("Autoplay wurde deaktiviert.").queue();
         }
-
-        musicManager.audioPlayer.setPaused(true);
-
-        e.reply("Wiedergabe pausiert.").queue();
 
         return true;
     }
@@ -39,14 +33,14 @@ public class PauseMusicCmd implements ServerCommand {
 
     @Override
     public BotPermission getNeededPermission() {
-        return BotPermission.MUSIC_NORMAL;
+        return BotPermission.MUSIC_ADVANCED;
     }
 
     @Override
-    public String getUsage(){
+    public String getUsage() {
         return """
-                Benutze ```/pause```
-                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.
-                Es muss gerade ein Song abgespielt werden.""";
+                Benutze ```/autoplay```
+                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden, falls der Bot bereits in einem Sprachkanal ist.
+                Es können YouTube-Link, Spotify-Link sowie beliebige Suchbegriffe verwendet werden.""";
     }
 }

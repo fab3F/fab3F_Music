@@ -2,16 +2,12 @@ package bot.commands.music;
 
 import bot.Bot;
 import bot.commands.ServerCommand;
+import bot.commands.VoiceStates;
 import bot.music.GuildMusicManager;
 import bot.music.LinkConverter;
 import bot.music.MusicSong;
-import bot.music.PlayerManager;
 import bot.permissionsystem.BotPermission;
-import general.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 import java.awt.*;
@@ -22,17 +18,7 @@ public class TrackInfoMusicCmd implements ServerCommand {
 
     @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
-        final Member self = e.getGuild().getSelfMember();
-        final GuildVoiceState selfVoiceState = self.getVoiceState();
-        final Member member = e.getMember();
-        final GuildVoiceState memberVoiceState = member.getVoiceState();
-
-
-        if(!selfVoiceState.inAudioChannel())
-            return false;
-        if(!memberVoiceState.inAudioChannel())
-            return false;
-        if(!memberVoiceState.getChannel().getId().equals(selfVoiceState.getChannel().getId()))
+        if(!VoiceStates.inSameVoiceChannel(e.getGuild().getSelfMember(), e.getMember()))
             return false;
 
         GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
@@ -75,7 +61,7 @@ public class TrackInfoMusicCmd implements ServerCommand {
         if(matcher.find()){
             eb.setThumbnail("https://img.youtube.com/vi/" + matcher.group(1) + "/0.jpg");
         }
-        eb.addField("Hinzugefügt von", "**`" + last.user.getName() + "`**", false);
+        eb.addField("Hinzugefügt von", "**`" + last.user + "`**", false);
         eb.setFooter("Befehl '/trackinfo'");
         eb.setTimestamp(new Date().toInstant());
 

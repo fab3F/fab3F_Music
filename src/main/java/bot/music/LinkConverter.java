@@ -6,9 +6,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import general.Main;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -74,7 +72,7 @@ public class LinkConverter {
         if(input.startsWith("https") && input.contains("youtube.com/watch") && !input.contains("list=")){
             Main.debug("Loading YT Video: " + input);
             e.getHook().sendMessage("YouTube Song zur Wiedergabeliste hinzugefügt: " + input).queue();
-            musicManager.scheduler.queue(new MusicSong(input, e.getChannel().asTextChannel(), e.getUser()), playAsFirst);
+            musicManager.scheduler.queue(new MusicSong(input, e.getChannel().asTextChannel(), e.getUser().getName()), playAsFirst);
         }
 
 
@@ -94,7 +92,7 @@ public class LinkConverter {
             if(error(e.getHook(), song))
                 return;
 
-            musicManager.scheduler.queue(new MusicSong("ytsearch:" + song + " audio", e.getChannel().asTextChannel(), e.getUser()), playAsFirst);
+            musicManager.scheduler.queue(new MusicSong("ytsearch:" + song + " audio", e.getChannel().asTextChannel(), e.getUser().getName()), playAsFirst);
             e.getHook().sendMessage("Spotify Song zur Wiedergabeliste hinzugefügt: " + input).queue();
             Main.debug("Queued Spotify Song: " + input);
         }
@@ -110,7 +108,7 @@ public class LinkConverter {
                 return;
 
             for(String name : list){
-                musicManager.scheduler.queue(new MusicSong("ytsearch:" + name + " audio", e.getChannel().asTextChannel(), e.getUser()), false);
+                musicManager.scheduler.queue(new MusicSong("ytsearch:" + name + " audio", e.getChannel().asTextChannel(), e.getUser().getName()), false);
             }
             e.getChannel().sendMessage("Spotify Playlist wurde fertig geladen.").queue();
             Main.debug("Queued Spotify List: " + input);
@@ -119,7 +117,7 @@ public class LinkConverter {
 
         else{
             Main.debug("Loading YT Search: " + input);
-            musicManager.scheduler.queue(new MusicSong("ytsearch:" + input + " audio", e.getChannel().asTextChannel(), e.getUser()), playAsFirst);
+            musicManager.scheduler.queue(new MusicSong("ytsearch:" + input + " audio", e.getChannel().asTextChannel(), e.getUser().getName()), playAsFirst);
             e.getHook().sendMessage("Song zur Wiedergabeliste hinzugefügt: " + input).queue();
         }
     }
@@ -280,7 +278,22 @@ public class LinkConverter {
             return listOfTracks;
         }
 
+    }
 
+    private List<String> getSimilarSongs(String name, TextChannel channel){
+        List<String> l = Bot.instance.configWorker.getBotConfig("lastFMkey");
+        if(l.isEmpty()){
+            l.add("_ERR_ERROR 70: No lastFM API KEY");
+        } else {
+            String key = l.get(0);
+            String userAgent = "Music Bot/" + Main.version + " fab3F";
+            String base = "http://ws.audioscrobbler.com/2.0/";
+            l = LastFMFinder.getSimilarSongs(name, key, userAgent, base);
+        }
+        if(error(channel, l.get(0))){
+            return null;
+        }
+        return l;
     }
 
 
@@ -299,7 +312,7 @@ public class LinkConverter {
                 final List<AudioTrack> tracks = audioPlaylist.getTracks();
                 if (!tracks.isEmpty()) {
                     for (AudioTrack track : tracks) {
-                        musicManager.scheduler.queue(new MusicSong(track, channel, user), false);
+                        musicManager.scheduler.queue(new MusicSong(track, channel, user.getName()), false);
                     }
                     msg = "YouTube Playlist wurde fertig geladen.";
                 } else {

@@ -2,8 +2,9 @@ package bot.commands.music;
 
 import bot.Bot;
 import bot.commands.ServerCommand;
+import bot.commands.VoiceStates;
 import bot.permissionsystem.BotPermission;
-import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -11,24 +12,19 @@ import net.dv8tion.jda.api.managers.AudioManager;
 public class PlayNowMusicCmd implements ServerCommand {
     @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
-        if(e.getOption("title") == null){
+        if(e.getOption("title") == null || e.getMember() == null || e.getGuild() == null){
             return false;
         }
-
-        // User not in voice channel
-        if(!e.getMember().getVoiceState().inAudioChannel()){
+        Guild g = e.getGuild();
+        if(!VoiceStates.inVoiceChannel(e.getMember())){
             return false;
         }
-
-        // not in same voice channel
-        if(e.getGuild().getSelfMember().getVoiceState().inAudioChannel()){
-            if(!e.getGuild().getSelfMember().getVoiceState().getChannel().getId().equals(e.getMember().getVoiceState().getChannel().getId())){
+        if(VoiceStates.inVoiceChannel(g.getSelfMember())){
+            if(!VoiceStates.inSameVoiceChannel(e.getMember(), g.getSelfMember())){
                 return false;
             }
-
-            // Bot not in voice channel
-        }else{
-            final AudioManager audioManager = e.getGuild().getAudioManager();
+        } else {
+            final AudioManager audioManager = g.getAudioManager();
             final VoiceChannel memberChannel = (VoiceChannel) e.getMember().getVoiceState().getChannel();
             audioManager.openAudioConnection(memberChannel);
         }

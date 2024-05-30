@@ -2,12 +2,10 @@ package bot.commands.music;
 
 import bot.Bot;
 import bot.commands.ServerCommand;
+import bot.commands.VoiceStates;
 import bot.music.MusicSong;
 import bot.permissionsystem.BotPermission;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 import java.awt.*;
@@ -17,19 +15,8 @@ import java.util.List;
 public class QueueMusicCmd implements ServerCommand {
     @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
-        final Member self = e.getGuild().getSelfMember();
-        final GuildVoiceState selfVoiceState = self.getVoiceState();
-        final Member member = e.getMember();
-        final GuildVoiceState memberVoiceState = member.getVoiceState();
-
-        if(!selfVoiceState.inAudioChannel())
+        if(!VoiceStates.inSameVoiceChannel(e.getGuild().getSelfMember(), e.getMember()))
             return false;
-        if(!memberVoiceState.inAudioChannel())
-            return false;
-        if(!memberVoiceState.getChannel().equals(selfVoiceState.getChannel()))
-            return false;
-
-
 
 
         List<MusicSong> queue = Bot.instance.getPM().getGuildMusicManager(e.getGuild()).scheduler.getQueue();
@@ -60,7 +47,7 @@ public class QueueMusicCmd implements ServerCommand {
             }else{
                 url = (song.url.startsWith("ytsearch:") ? replaceLast(song.url.replaceFirst("ytsearch:", ""), " audio", "") : song.url) + " (Noch nicht geladen)";
             }
-            eb.addField("#" + i + " " + url, "Hinzugefügt von `" + song.user.getName() + "`", false);
+            eb.addField("#" + i + " " + url, "Hinzugefügt von `" + song.user + "`", false);
             i++;
 
         }

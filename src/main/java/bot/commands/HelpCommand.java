@@ -1,7 +1,6 @@
 package bot.commands;
 
 import bot.permissionsystem.BotPermission;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 public class HelpCommand implements ServerCommand {

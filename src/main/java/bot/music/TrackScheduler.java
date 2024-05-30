@@ -3,7 +3,6 @@ package bot.music;
 import bot.Bot;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
-import com.sedmelluq.discord.lavaplayer.tools.ExceptionTools;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
@@ -19,6 +18,7 @@ public class TrackScheduler extends AudioEventAdapter {
     private final ConcurrentLinkedDeque<MusicSong> queue = new ConcurrentLinkedDeque<>();
     private MusicSong lastPlayingSong;
     private boolean isRepeat = false;
+    public boolean isAutoplay = false;
     private int aFew = 3; // how much a "few" songs is (preloaded)
 
     public TrackScheduler(AudioPlayer player) {
@@ -134,9 +134,13 @@ public class TrackScheduler extends AudioEventAdapter {
         isRepeat = !isRepeat;
     }
 
+    public boolean toogleAutoPlay(){
+        this.isAutoplay = !isAutoplay;
+        return this.isAutoplay;
+    }
+
     @Override
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
-        exception.printStackTrace();
         Main.debug("Track exception: " + exception.getMessage());
     }
 
