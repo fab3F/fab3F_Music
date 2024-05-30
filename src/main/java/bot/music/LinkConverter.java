@@ -34,7 +34,7 @@ public class LinkConverter {
     private final String spotifyClientSecret;
     private SpotifyApi spotifyApi;
 
-    public static final String ERROR_PREFIX = "_ERR_ERROR";
+    public static final String ERROR_PREFIX = "_ERR_";
     public static final Pattern YOUTUBE_VIDEO_ID_PATTERN = Pattern.compile("(?:https?://)?(?:www\\.)?(?:youtube\\.com|youtu\\.be)/(?:.*[?&]v=|v/|embed/|watch\\?v=|.*#.*/)?([^&\\n?#]+)");
 
     public LinkConverter(String spotifyClientId, String spotifyClienSecret){
@@ -280,7 +280,7 @@ public class LinkConverter {
 
     }
 
-    private List<String> getSimilarSongs(String name, TextChannel channel){
+    public void loadSimilarSongs(String name, TextChannel channel){
         List<String> l = Bot.instance.configWorker.getBotConfig("lastFMkey");
         if(l.isEmpty()){
             l.add("_ERR_ERROR 70: No lastFM API KEY");
@@ -290,10 +290,19 @@ public class LinkConverter {
             String base = "http://ws.audioscrobbler.com/2.0/";
             l = LastFMFinder.getSimilarSongs(name, key, userAgent, base);
         }
-        if(error(channel, l.get(0))){
-            return null;
+        TrackScheduler scheduler = Bot.instance.getPM().getGuildMusicManager(channel.getGuild()).scheduler;
+        if(l.get(0).startsWith(ERROR_PREFIX) && name.length() > 25){
+            loadSimilarSongs(name.substring(0, 24), channel);
+            return;
+        } else if(error(channel, l.get(0))){
+            if(scheduler.isAutoplay){
+                scheduler.toogleAutoPlay();
+            }
+            return;
         }
-        return l;
+        for(String s : l){
+            scheduler.queue(new MusicSong("ytsearch:" + s + " audio", channel, "Premium Autoplayer"), false);
+        }
     }
 
 

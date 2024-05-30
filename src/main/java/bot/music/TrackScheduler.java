@@ -6,7 +6,9 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import general.ConfigWorker;
 import general.Main;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,8 @@ public class TrackScheduler extends AudioEventAdapter {
     private MusicSong lastPlayingSong;
     private boolean isRepeat = false;
     public boolean isAutoplay = false;
+    private boolean searchingForAutoplay = false;
+    public TextChannel lastUsedTextChannel;
     private int aFew = 3; // how much a "few" songs is (preloaded)
 
     public TrackScheduler(AudioPlayer player) {
@@ -38,6 +42,7 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     public void queue(MusicSong song, boolean queueAsFirst) {
+        this.lastUsedTextChannel = song.channel;
         boolean songInstantlyStartedPlaying = false;
         if(song.isLoaded && this.player.getPlayingTrack() == null && this.queue.isEmpty()){
             songInstantlyStartedPlaying = player.startTrack(song.getTrack(), true);
@@ -60,11 +65,18 @@ public class TrackScheduler extends AudioEventAdapter {
     public void nextSong(boolean skipping){
         MusicSong nextSong = queue.poll();
 
-        if(nextSong == null || !nextSong.isLoaded){
+        if(nextSong != null && !nextSong.isLoaded){
+            return;
+        }
+
+        if(nextSong == null){
             if(skipping){
                 this.isRepeat = false;
                 player.startTrack(null, false);
                 loadNextFewSongs();
+            }
+            if(isAutoplay){
+                startAutoPlay();
             }
             return;
         }
@@ -111,7 +123,7 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     public MusicSong getLastPlaying(){
-        if(this.lastPlayingSong == null || this.player.getPlayingTrack() == null){
+        if(this.lastPlayingSong == null){
             return null;
         } else {
             return this.lastPlayingSong;
@@ -137,6 +149,21 @@ public class TrackScheduler extends AudioEventAdapter {
     public boolean toogleAutoPlay(){
         this.isAutoplay = !isAutoplay;
         return this.isAutoplay;
+    }
+
+    public void startAutoPlay(){
+        if(this.queue.isEmpty() && !searchingForAutoplay){
+            searchingForAutoplay = true;
+
+            if(this.lastPlayingSong == null){
+                Bot.instance.getPM().linkConverter.loadSimilarSongs("TOPCHART", this.lastUsedTextChannel);
+            }else{
+                Bot.instance.getPM().linkConverter.loadSimilarSongs(lastPlayingSong.getTrack().getInfo().title, lastPlayingSong.channel);
+            }
+
+        }
+        loadNextFewSongs();
+        searchingForAutoplay = false;
     }
 
     @Override

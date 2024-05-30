@@ -5,24 +5,43 @@ import bot.commands.ServerCommand;
 import bot.commands.VoiceStates;
 import bot.music.GuildMusicManager;
 import bot.permissionsystem.BotPermission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.managers.AudioManager;
 
 public class AutoPlayMusicCmd implements ServerCommand {
     @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
-        if(!VoiceStates.inSameVoiceChannel(e.getGuild().getSelfMember(), e.getMember()))
+        if(e.getMember() == null || e.getGuild() == null){
             return false;
+        }
+        Guild g = e.getGuild();
+        if(!VoiceStates.inVoiceChannel(e.getMember())){
+            return false;
+        }
+        if(VoiceStates.inVoiceChannel(g.getSelfMember())){
+            if(!VoiceStates.inSameVoiceChannel(e.getMember(), g.getSelfMember())){
+                return false;
+            }
+        } else {
+            final AudioManager audioManager = g.getAudioManager();
+            final VoiceChannel memberChannel = e.getMember().getVoiceState().getChannel().asVoiceChannel();
+            audioManager.openAudioConnection(memberChannel);
+        }
 
 
         GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
-
+        musicManager.scheduler.lastUsedTextChannel = e.getChannel().asTextChannel();
         boolean autoplay = musicManager.scheduler.toogleAutoPlay();
         if(autoplay){
-            e.reply("Autoplay wurde aktiviert.").queue();
+            e.reply("Autoplay wurde aktiviert. Nachdem die Wiedergabeliste abgespielt wurde, werden empfohlene Songs abgespielt.").queue();
         }else{
+            if(musicManager.scheduler.getLastPlaying().user.equals("Premium Autoplayer")){
+                musicManager.clearQueue();
+            }
             e.reply("Autoplay wurde deaktiviert.").queue();
         }
-
         return true;
     }
 

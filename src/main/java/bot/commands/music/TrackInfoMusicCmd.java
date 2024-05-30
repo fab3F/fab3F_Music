@@ -27,10 +27,13 @@ public class TrackInfoMusicCmd implements ServerCommand {
         if(musicManager.audioPlayer.getPlayingTrack() == null)
             return false;
 
+        MusicSong last = musicManager.scheduler.getLastPlaying();
+        if(last == null)
+            return false;
+
 
         e.deferReply().queue();
 
-        MusicSong last = musicManager.scheduler.getLastPlaying();
 
         EmbedBuilder eb = new EmbedBuilder();
         eb.setAuthor("Informationen zu");

@@ -18,7 +18,6 @@ public class PlayerManager {
     public LinkConverter linkConverter;
 
     public PlayerManager() {
-
         audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager(true));
         AudioSourceManagers.registerRemoteSources(audioPlayerManager);
         AudioSourceManagers.registerLocalSource(audioPlayerManager);

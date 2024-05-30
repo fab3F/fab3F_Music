@@ -45,7 +45,8 @@ public class SlashCommandListener extends ListenerAdapter {
                 Commands.slash("volume", "Ändere oder erhalte allgemeine Lautstärke des Bots")
                         .addOption(OptionType.INTEGER, "value", "Wert zwischen 0 und 100 (Prozent)", false),
                 Commands.slash("bassboost", "Booste den Bass des Bots (experimentell)")
-                        .addOption(OptionType.INTEGER, "value", "Wert zwischen 0 und 200 (Prozent)", false)
+                        .addOption(OptionType.INTEGER, "value", "Wert zwischen 0 und 200 (Prozent)", false),
+                Commands.slash("autoplay", "sd")
 
 
 

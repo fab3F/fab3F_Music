@@ -1,5 +1,6 @@
 package bot.music;
 
+import general.Main;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -17,24 +18,30 @@ public class LastFMFinder {
     public static ArrayList<String> getSimilarSongs(String track, String apiKey, String userAgent, String baseUrl) {
         ArrayList<String> list = new ArrayList<>();
         try {
-            String artist = getArtistFromTrack(track, apiKey, userAgent, baseUrl);
-            if (artist != null) {
-                list =  fetchSimilarTracks(artist, track, apiKey, userAgent, baseUrl);
-                if(!list.isEmpty()){
-                    return list;
+            if(track.equals("TOPCHART")){
+                list = getTopCharts(apiKey, userAgent, baseUrl);
+            } else {
+                String[] result = getArtistFromTrack(track, apiKey, userAgent, baseUrl).split("_._._");
+                if (result[0] != null) {
+                    list =  fetchSimilarTracks(result[0], result[1], apiKey, userAgent, baseUrl);
                 }
             }
-            list.add("_ERR_ERROR 71: No results found for the given track name: " + track);
+            if(!list.isEmpty()){
+                return list;
+            }
+            list.add("_ERR_ERROR 71: No similar songs found for the following Autoplay request: " + track + "\n" +
+                    "Play another song an try again.");
 
         } catch (Exception e) {
             list.clear();
-            list.add("_ERR_ERROR 72: An exception occurred with the following lastFM request: " + track + " - The exception: " + e.getMessage());
+            Main.debug("Exception lastFM: " + e.getMessage() + " for request " + track);
+            list.add("_ERR_ERROR 72: An error occurred with the following Autoplay request: " + track);
         }
         return list;
     }
 
     private static String getArtistFromTrack(String track, String apiKey, String userAgent, String baseUrl) throws Exception {
-        String searchQuery = String.format("method=track.search&track=%s&api_key=%s&format=json",
+        String searchQuery = String.format("method=track.search&track=%s&api_key=%s&format=json&limit=1",
                 URLEncoder.encode(track, StandardCharsets.UTF_8), apiKey);
         String searchUrl = baseUrl + "?" + searchQuery;
 
@@ -44,14 +51,31 @@ public class LastFMFinder {
                 .getJSONArray("track");
 
         if (!trackArray.isEmpty()) {
-            return trackArray.getJSONObject(0).getString("artist");
+            return trackArray.getJSONObject(0).getString("artist")+"_._._"+trackArray.getJSONObject(0).getString("name");
         }
         return null;
     }
 
+    private static ArrayList<String> getTopCharts(String apiKey, String userAgent, String baseUrl) throws Exception {
+        ArrayList<String> list = new ArrayList<>();
+        String searchQuery = String.format("method=chart.gettoptracks&api_key=%s&format=json&limit=30", apiKey);
+        String searchUrl = baseUrl + "?" + searchQuery;
+
+        JSONObject jsonResponse = getJsonResponse(searchUrl, userAgent);
+        JSONArray trackArray = jsonResponse.getJSONObject("tracks").getJSONArray("track");
+
+        for (int i = 0; i < trackArray.length(); i++) {
+            JSONObject trackObject = trackArray.getJSONObject(i);
+            String name = trackObject.getString("name");
+            String artist = trackObject.getJSONObject("artist").getString("name");
+            list.add(artist + " - " + name);
+        }
+        return list;
+    }
+
     private static ArrayList<String> fetchSimilarTracks(String artist, String track, String apiKey, String userAgent, String baseUrl) throws Exception {
         ArrayList<String> list = new ArrayList<>();
-        String query = String.format("method=track.getSimilar&artist=%s&track=%s&api_key=%s&format=json",
+        String query = String.format("method=track.getSimilar&artist=%s&track=%s&api_key=%s&format=json&limit=30",
                 URLEncoder.encode(artist, StandardCharsets.UTF_8), URLEncoder.encode(track, StandardCharsets.UTF_8), apiKey);
         String url = baseUrl + "?" + query;
 

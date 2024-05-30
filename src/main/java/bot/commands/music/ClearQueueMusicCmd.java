@@ -4,6 +4,7 @@ import bot.Bot;
 import bot.commands.ServerCommand;
 import bot.commands.VoiceStates;
 import bot.permissionsystem.BotPermission;
+import general.Main;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 public class ClearQueueMusicCmd implements ServerCommand {
@@ -15,7 +16,7 @@ public class ClearQueueMusicCmd implements ServerCommand {
         try {
             Bot.instance.getPM().getGuildMusicManager(e.getGuild()).clearQueue();
         }catch (Exception ex){
-            return false;
+            Main.debug("ERROR when trying to clear queue: " + ex.getMessage());
         }
         e.reply("Wiedergabeliste erfolgreich geleert.").queue();
         return true;

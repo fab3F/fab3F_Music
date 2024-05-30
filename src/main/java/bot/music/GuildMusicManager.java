@@ -5,6 +5,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import general.Main;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 public class GuildMusicManager implements Runnable {
 
@@ -89,6 +90,8 @@ public class GuildMusicManager implements Runnable {
                 this.scheduler.loadNextFewSongs();
                 if(this.audioPlayer.getPlayingTrack() == null && this.scheduler.getNextSong() != null && this.scheduler.getNextSong().isLoaded){
                     this.scheduler.nextSong(false);
+                } else if(this.scheduler.isAutoplay && this.audioPlayer.getPlayingTrack() == null && this.scheduler.getNextSong() == null){
+                    this.scheduler.startAutoPlay();
                 }
 
             }
