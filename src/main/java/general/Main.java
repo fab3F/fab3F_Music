@@ -9,13 +9,11 @@ import java.util.List;
 
 public class Main {
 
-    public static final String version = "2.4";
+    public static final String version = "2.5";
     private static final String configPath = "config";
 
     public static Main main;
-    public static void main(String[] args) {
-        main = new Main();
-    }
+    public static void main(String[] args) { main = new Main(); }
 
     private final ConfigWorker configWorker;
     private final Logger logger;

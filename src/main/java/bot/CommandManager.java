@@ -26,6 +26,7 @@ public class CommandManager {
 
         this.commands.put("pause", new PauseMusicCmd());
         this.commands.put("continue", new ContinueMusicCmd());
+        this.commands.put("resume", new ContinueMusicCmd());
 
         this.commands.put("queue", new QueueMusicCmd());
         this.commands.put("clearqueue", new ClearQueueMusicCmd());

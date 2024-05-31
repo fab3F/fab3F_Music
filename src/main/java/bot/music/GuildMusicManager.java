@@ -1,5 +1,6 @@
 package bot.music;
 
+import bot.Bot;
 import com.sedmelluq.discord.lavaplayer.filter.equalizer.EqualizerFactory;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -30,8 +31,8 @@ public class GuildMusicManager implements Runnable {
         this.sendHandler = new AudioPlayerSendHandler(this.audioPlayer);
 
         this.guild = guild;
-        this.volume = 100;
-        this.audioPlayer.setVolume(100);
+        this.volume = Integer.parseInt(Bot.instance.configWorker.getServerConfig(guild.getId(), "defaultVolume").get(0));
+        this.audioPlayer.setVolume(this.volume);
 
         this.equalizer = new EqualizerFactory();
         this.audioPlayer.setFilterFactory(this.equalizer);

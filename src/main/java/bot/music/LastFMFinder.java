@@ -21,9 +21,9 @@ public class LastFMFinder {
             if(track.equals("TOPCHART")){
                 list = getTopCharts(apiKey, userAgent, baseUrl);
             } else {
-                String[] result = getArtistFromTrack(track, apiKey, userAgent, baseUrl).split("_._._");
-                if (result[0] != null) {
-                    list =  fetchSimilarTracks(result[0], result[1], apiKey, userAgent, baseUrl);
+                String result = getArtistFromTrack(track, apiKey, userAgent, baseUrl);
+                if (result != null) {
+                    list = fetchSimilarTracks(result.split("_._._")[0], result.split("_._._")[1], apiKey, userAgent, baseUrl);
                 }
             }
             if(!list.isEmpty()){
@@ -34,7 +34,7 @@ public class LastFMFinder {
 
         } catch (Exception e) {
             list.clear();
-            Main.debug("Exception lastFM: " + e.getMessage() + " for request " + track);
+            Main.error("Exception lastFM: " + e.getMessage() + " for request " + track);
             list.add("_ERR_ERROR 72: An error occurred with the following Autoplay request: " + track);
         }
         return list;

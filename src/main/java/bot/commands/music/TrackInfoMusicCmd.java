@@ -44,7 +44,7 @@ public class TrackInfoMusicCmd implements ServerCommand {
             eb.setDescription("Bestimmt ein wunderbarer Song.\n" +
                     "**Information:** Dieser Song wird wiederholt.");
         }
-        eb.addField("Interpret", "**`" + last.getTrack().getInfo().author + "`**", false);
+        eb.addField("Uploader", "**`" + last.getTrack().getInfo().author + "`**", false);
 
         int durationInSeconds = (int) last.getTrack().getInfo().length / 1000;
         int hours = durationInSeconds / 3600;

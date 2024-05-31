@@ -18,12 +18,14 @@ public class TrackScheduler extends AudioEventAdapter {
 
     private final AudioPlayer player;
     private final ConcurrentLinkedDeque<MusicSong> queue = new ConcurrentLinkedDeque<>();
+    private final List<String> autoPlayedSongs = new ArrayList<>();
     private MusicSong lastPlayingSong;
     private boolean isRepeat = false;
     public boolean isAutoplay = false;
     private boolean searchingForAutoplay = false;
     public TextChannel lastUsedTextChannel;
-    private int aFew = 3; // how much a "few" songs is (preloaded)
+    private final int preloaded = Integer.parseInt(Bot.instance.configWorker.getBotConfig("preloadedSongs").get(0));
+
 
     public TrackScheduler(AudioPlayer player) {
         this.player = player;
@@ -81,6 +83,9 @@ public class TrackScheduler extends AudioEventAdapter {
             return;
         }
 
+        if(isAutoplay && this.autoPlayedSongs.contains(nextSong.getTrack().getInfo().title)){
+            nextSong(skipping);
+        }
         this.isRepeat = false;
         player.startTrack(nextSong.getTrack(), false);
         trackStartedPlaying(nextSong);
@@ -103,12 +108,15 @@ public class TrackScheduler extends AudioEventAdapter {
 
         song.channel.sendMessage("Jetzt spielt: **`" + song.getTrack().getInfo().title + "`** von **`" + song.getTrack().getInfo().author + "`** (" + length + ")").queue();
         this.lastPlayingSong = song;
+        if(song.user.equals(Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0))){
+            this.autoPlayedSongs.add(song.getTrack().getInfo().title);
+        }
     }
 
 
     // loads the next "few" songs
     public void loadNextFewSongs(){
-        for(MusicSong song : new ArrayList<>(this.queue).subList(0, Math.min(queue.size(), this.aFew))){
+        for(MusicSong song : new ArrayList<>(this.queue).subList(0, Math.min(queue.size(), this.preloaded))){
             if(song.invalid){
                 this.queue.remove(song);
             }else if(!song.isLoaded && !song.isInLoadingProcess){
@@ -148,6 +156,9 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public boolean toogleAutoPlay(){
         this.isAutoplay = !isAutoplay;
+        if(!isAutoplay){
+            this.autoPlayedSongs.clear();
+        }
         return this.isAutoplay;
     }
 

@@ -37,7 +37,7 @@ public class AutoPlayMusicCmd implements ServerCommand {
         if(autoplay){
             e.reply("Autoplay wurde aktiviert. Nachdem die Wiedergabeliste abgespielt wurde, werden empfohlene Songs abgespielt.").queue();
         }else{
-            if(musicManager.scheduler.getLastPlaying().user.equals("Premium Autoplayer")){
+            if(musicManager.scheduler.getLastPlaying().user.equals(Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0))){
                 musicManager.clearQueue();
             }
             e.reply("Autoplay wurde deaktiviert.").queue();

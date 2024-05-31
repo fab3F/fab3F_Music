@@ -33,6 +33,7 @@ public class SlashCommandListener extends ListenerAdapter {
 
                 Commands.slash("pause", "Pausiert die Wiedergabe des aktuellen Songs"),
                 Commands.slash("continue", "Setzt die Wiedergabe fort"),
+                Commands.slash("resume", "Setzt die Wiedergabe fort"),
 
                 Commands.slash("queue", "Erhalte Informationen zur aktuellen Wiedergabeliste"),
                 Commands.slash("clearqueue", "Leert die Wiedergabeliste"),
@@ -46,7 +47,7 @@ public class SlashCommandListener extends ListenerAdapter {
                         .addOption(OptionType.INTEGER, "value", "Wert zwischen 0 und 100 (Prozent)", false),
                 Commands.slash("bassboost", "Booste den Bass des Bots (experimentell)")
                         .addOption(OptionType.INTEGER, "value", "Wert zwischen 0 und 200 (Prozent)", false),
-                Commands.slash("autoplay", "sd")
+                Commands.slash("autoplay", "Spiele automatisch weitere Songs ab, sobald die Wiedergabeliste leer ist!")
 
 
 

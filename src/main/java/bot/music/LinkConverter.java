@@ -51,6 +51,8 @@ public class LinkConverter {
         if(e.getGuild() == null)
             return;
 
+        input = replaceUnallowedCharacters(input);
+
         GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
 
         Matcher matcher = YOUTUBE_VIDEO_ID_PATTERN.matcher(input);
@@ -281,6 +283,7 @@ public class LinkConverter {
     }
 
     public void loadSimilarSongs(String name, TextChannel channel){
+        name = replaceUnallowedCharacters(name);
         List<String> l = Bot.instance.configWorker.getBotConfig("lastFMkey");
         if(l.isEmpty()){
             l.add("_ERR_ERROR 70: No lastFM API KEY");
@@ -292,7 +295,7 @@ public class LinkConverter {
         }
         TrackScheduler scheduler = Bot.instance.getPM().getGuildMusicManager(channel.getGuild()).scheduler;
         if(l.get(0).startsWith(ERROR_PREFIX) && name.length() > 25){
-            loadSimilarSongs(name.substring(0, 24), channel);
+            loadSimilarSongs(name.substring(0, Math.min(40, name.length()) - 1), channel);
             return;
         } else if(error(channel, l.get(0))){
             if(scheduler.isAutoplay){
@@ -301,7 +304,7 @@ public class LinkConverter {
             return;
         }
         for(String s : l){
-            scheduler.queue(new MusicSong("ytsearch:" + s + " audio", channel, "Premium Autoplayer"), false);
+            scheduler.queue(new MusicSong("ytsearch:" + s + " audio", channel, Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0)), false);
         }
     }
 
@@ -367,6 +370,17 @@ public class LinkConverter {
             return true;
         }
         return false;
+    }
+
+    private String replaceUnallowedCharacters(String s) {
+        String unallowedCharacters = Bot.instance.configWorker.getBotConfig("unallowedCharactersMusicList").get(0);
+        StringBuilder result = new StringBuilder();
+        for (char c : s.toCharArray()) {
+            if (unallowedCharacters.indexOf(c) == -1) {
+                result.append(c);
+            }
+        }
+        return result.toString();
     }
 
 

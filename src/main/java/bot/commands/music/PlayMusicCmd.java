@@ -36,13 +36,9 @@ public class PlayMusicCmd implements ServerCommand {
 
         String link = e.getOption("title").getAsString();
 
-        if(link.contains("\"") || link.contains("'")){
-            e.getHook().sendMessage("Sorry, aber diese URL oder dieser Name enthält ein unzulässiges Sonderzeichen. Bitte versuche es erneut.").queue();
-            return true;
-        }
         GuildMusicManager manager = Bot.instance.getPM().getGuildMusicManager(g);
 
-        if(manager.scheduler.isAutoplay && manager.scheduler.getLastPlaying().user.equals("Premium Autoplayer")){
+        if(manager.scheduler.isAutoplay && manager.scheduler.getLastPlaying().user.equals(Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0))){
             manager.clearQueue();
         }
 
