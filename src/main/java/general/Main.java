@@ -55,7 +55,7 @@ public class Main {
 
 
     public static void debug(String message){
-        if(main.debug)
+        if(main != null && main.debug)
             System.out.println(new SimpleDateFormat("yyyy.MM.dd-HH:mm:ss").format(new Date()) + " [DEBUG] " + message);
     }
 

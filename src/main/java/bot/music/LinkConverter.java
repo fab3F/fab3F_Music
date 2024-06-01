@@ -295,7 +295,7 @@ public class LinkConverter {
         }
         TrackScheduler scheduler = Bot.instance.getPM().getGuildMusicManager(channel.getGuild()).scheduler;
         if(l.get(0).startsWith(ERROR_PREFIX) && name.length() > 25){
-            loadSimilarSongs(name.substring(0, Math.min(40, name.length()) - 1), channel);
+            loadSimilarSongs(name.substring(0, Math.min(50, name.length()) - 4), channel);
             return;
         } else if(error(channel, l.get(0))){
             if(scheduler.isAutoplay){

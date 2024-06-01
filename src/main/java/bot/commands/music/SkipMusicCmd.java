@@ -20,9 +20,9 @@ public class SkipMusicCmd implements ServerCommand {
         if(musicManager.audioPlayer.getPlayingTrack() == null)
             return false;
 
-        musicManager.scheduler.nextSong(true);
-
         e.reply("Aktueller Song wurde übersprungen.").queue();
+
+        musicManager.scheduler.nextSong(true);
 
         return true;
     }

@@ -81,11 +81,10 @@ public class TrackScheduler extends AudioEventAdapter {
                 startAutoPlay();
             }
             return;
-        }
-
-        if(isAutoplay && this.autoPlayedSongs.contains(nextSong.getTrack().getInfo().title)){
+        } else if(isAutoplay && this.autoPlayedSongs.contains(nextSong.getTrack().getInfo().title)){
             nextSong(skipping);
         }
+
         this.isRepeat = false;
         player.startTrack(nextSong.getTrack(), false);
         trackStartedPlaying(nextSong);
@@ -171,10 +170,9 @@ public class TrackScheduler extends AudioEventAdapter {
             }else{
                 Bot.instance.getPM().linkConverter.loadSimilarSongs(lastPlayingSong.getTrack().getInfo().title, lastPlayingSong.channel);
             }
-
+            searchingForAutoplay = false;
+            loadNextFewSongs();
         }
-        loadNextFewSongs();
-        searchingForAutoplay = false;
     }
 
     @Override
