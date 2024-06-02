@@ -81,7 +81,8 @@ public class TrackScheduler extends AudioEventAdapter {
                 startAutoPlay();
             }
             return;
-        } else if(isAutoplay && this.autoPlayedSongs.contains(nextSong.getTrack().getInfo().title)){
+        } else if(this.autoPlayedSongs.contains(nextSong.getTrack().getInfo().title) && isAutoplay && nextSong.user.equals(Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0))){
+            Main.debug("Skipped Autoplay duplicate: " + nextSong.getTrack().getInfo().title);
             nextSong(skipping);
         }
 

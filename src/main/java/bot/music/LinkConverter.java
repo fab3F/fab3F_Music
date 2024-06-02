@@ -36,6 +36,7 @@ public class LinkConverter {
 
     public static final String ERROR_PREFIX = "_ERR_";
     public static final Pattern YOUTUBE_VIDEO_ID_PATTERN = Pattern.compile("(?:https?://)?(?:www\\.)?(?:youtube\\.com|youtu\\.be)/(?:.*[?&]v=|v/|embed/|watch\\?v=|.*#.*/)?([^&\\n?#]+)");
+    public static final Pattern YOUTUBE_PLAYLIST_ID_PATTERN = Pattern.compile("(?:https?://)?(?:www\\.)?youtube\\.com/playlist\\?list=([^&\\n?#]+)");
 
     public LinkConverter(String spotifyClientId, String spotifyClienSecret){
         this.spotifyClientId = spotifyClientId;
@@ -55,11 +56,17 @@ public class LinkConverter {
 
         GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
 
-        Matcher matcher = YOUTUBE_VIDEO_ID_PATTERN.matcher(input);
-        if(matcher.find()){
-            input =  "https://www.youtube.com/watch?v=" + matcher.group(1);
+        Matcher plMatcher = YOUTUBE_PLAYLIST_ID_PATTERN.matcher(input);
+        Matcher viMatcher = YOUTUBE_VIDEO_ID_PATTERN.matcher(input);
+        // Check for playlist first otherwise it will always find video
+        if(plMatcher.find()){
+            input = "https://www.youtube.com/playlist?list=" + plMatcher.group(1);
+        }
+        else if(viMatcher.find()){
+            input =  "https://www.youtube.com/watch?v=" + viMatcher.group(1);
         }
 
+        // youtu.be should never be expaned because of video pattern matcher
         if((input.startsWith("https") && input.contains("youtu.be/")) || (input.startsWith("https") && input.contains("spotify.link/")) ){
 
             input = this.expandURL(input);
@@ -79,7 +86,7 @@ public class LinkConverter {
 
 
 
-        else if(input.startsWith("https") && input.contains("youtube.com/") && input.contains("list=")){
+        else if(input.startsWith("https") && input.contains("youtube.com/playlist") && input.contains("list=")){
             Main.debug("Loading YT List: " + input);
             e.getHook().sendMessage("YouTube Playlist wird geladen und zur Wiedergabeliste hinzugefügt, dies kann einige Sekunden dauern: " + input).queue();
 
