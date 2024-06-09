@@ -2,7 +2,7 @@ package bot.commands.music;
 
 import bot.Bot;
 import bot.commands.ServerCommand;
-import bot.commands.VoiceStates;
+import bot.music.VoiceStates;
 import bot.music.MusicSong;
 import bot.permissionsystem.BotPermission;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -45,7 +45,7 @@ public class QueueMusicCmd implements ServerCommand {
             if(song.isLoaded){
                 url = "**" + song.getTrack().getInfo().title + "**";
             }else{
-                url = (song.url.startsWith("ytsearch:") ? replaceLast(song.url.replaceFirst("ytsearch:", ""), " audio", "") : song.url) + " (Noch nicht geladen)";
+                url = (song.url.startsWith("ytsearch:") ? general.SyIO.replaceLast(song.url.replaceFirst("ytsearch:", ""), " audio", "") : song.url) + " (Noch nicht geladen)";
             }
             eb.addField("#" + i + " " + url, "Hinzugefügt von `" + song.user + "`", false);
             i++;
@@ -70,7 +70,7 @@ public class QueueMusicCmd implements ServerCommand {
 
     @Override
     public BotPermission getNeededPermission() {
-        return BotPermission.MUSIC_NORMAL;
+        return BotPermission.VOICE_NORMAL;
     }
 
     @Override
@@ -79,9 +79,5 @@ public class QueueMusicCmd implements ServerCommand {
                 Benutze ```/queue```
                 Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.
                 Die Wiedergabeliste darf nicht leer sein.""";
-    }
-
-    private String replaceLast(String input, String regex, String replacement) {
-        return input.replaceFirst("(?s)(.*)" + regex, "$1" + replacement);
     }
 }

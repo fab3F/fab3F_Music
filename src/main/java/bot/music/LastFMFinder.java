@@ -29,13 +29,13 @@ public class LastFMFinder {
             if(!list.isEmpty()){
                 return list;
             }
-            list.add("_ERR_ERROR 71: No similar songs found for the following Autoplay request: " + track + "\n" +
+            list.add(LinkConverter.ERROR_PREFIX + "ERROR 71: No similar songs found for the following Autoplay request: " + track + "\n" +
                     "Play another song an try again.");
 
         } catch (Exception e) {
             list.clear();
             Main.error("Exception lastFM: " + e.getMessage() + " for request " + track);
-            list.add("_ERR_ERROR 72: An error occurred with the following Autoplay request: " + track);
+            list.add(LinkConverter.ERROR_PREFIX + "ERROR 72: An error occurred with the following Autoplay request: " + track);
         }
         return list;
     }

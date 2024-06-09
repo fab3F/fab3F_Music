@@ -28,5 +28,8 @@ public class SyIO {
     public void closeSys(){in.close();}
     public String getFilesep(){return filesep;}
 
+    public static String replaceLast(String input, String regex, String replacement) {
+        return input.replaceFirst("(?s)(.*)" + regex, "$1" + replacement);
+    }
 
 }

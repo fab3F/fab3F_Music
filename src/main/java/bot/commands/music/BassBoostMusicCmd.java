@@ -2,7 +2,7 @@ package bot.commands.music;
 
 import bot.Bot;
 import bot.commands.ServerCommand;
-import bot.commands.VoiceStates;
+import bot.music.VoiceStates;
 import bot.music.GuildMusicManager;
 import bot.permissionsystem.BotPermission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -36,7 +36,7 @@ public class BassBoostMusicCmd implements ServerCommand {
 
     @Override
     public BotPermission getNeededPermission() {
-        return BotPermission.MUSIC_ADVANCED;
+        return BotPermission.VOICE_ADVANCED;
     }
 
     @Override

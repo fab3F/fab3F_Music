@@ -1,7 +1,7 @@
 package bot.listener;
 
 import bot.Bot;
-import bot.commands.VoiceStates;
+import bot.music.VoiceStates;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

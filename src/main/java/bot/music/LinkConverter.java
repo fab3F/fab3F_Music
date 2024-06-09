@@ -153,13 +153,13 @@ public class LinkConverter {
                     expandedUrl = shortUrl;
                     redirectCount = 999;
                 } else {
-                    return "_ERR_ERROR 20: URL cannot be converted. Request returend following response code: " + responseCode;
+                    return ERROR_PREFIX + "ERROR 20: URL cannot be converted. Request returend following response code: " + responseCode;
                 }
             }
             if(redirectCount != 999)
-                return "_ERR_ERROR 21: URL cannot be converted. Too many redirects: " + shortUrl;
+                return ERROR_PREFIX + "ERROR 21: URL cannot be converted. Too many redirects: " + shortUrl;
         } catch (IOException e) {
-            return "_ERR_ERROR 22: URL cannot be converted: " + shortUrl;
+            return ERROR_PREFIX + "ERROR 22: URL cannot be converted: " + shortUrl;
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -193,7 +193,7 @@ public class LinkConverter {
 
             return cleanedUrl.toString();
         } catch (Exception ex) {
-            return "_ERR_ERROR 23: URL cannot be cleaned: " + expandedUrl;
+            return ERROR_PREFIX + "ERROR 23: URL cannot be cleaned: " + expandedUrl;
         }
     }
 
@@ -223,7 +223,7 @@ public class LinkConverter {
         try{
             track = trackRequest.execute();
         }catch (IOException | ParseException | SpotifyWebApiException e){
-            return "_ERR_ERROR 41: Spotify track request was not successful.";
+            return ERROR_PREFIX + "ERROR 41: Spotify track request was not successful.";
         }
 
         artistNameAndTrackName = new StringBuilder(track.getName() + " - ");
@@ -241,7 +241,7 @@ public class LinkConverter {
         ArrayList<String> listOfTracks = new ArrayList<>();
 
         if(!initializeSpotify()){
-            listOfTracks.add("_ERR_ERROR 40: Cannot connect with Spotify API.");
+            listOfTracks.add(ERROR_PREFIX + "ERROR 40: Cannot connect with Spotify API.");
             return listOfTracks;
         }
 
@@ -263,7 +263,7 @@ public class LinkConverter {
             try{
                 playlist = playlistRequest.execute();
             }catch (IOException | ParseException | SpotifyWebApiException e){
-                listOfTracks.add("_ERR_ERROR 42: Spotify playlist request was not successful. The playlist may be set to private.");
+                listOfTracks.add(ERROR_PREFIX + "ERROR 42: Spotify playlist request was not successful. The playlist may be set to private.");
                 return listOfTracks;
             }
             Paging<PlaylistTrack> playlistPaging = playlist.getTracks();
@@ -279,11 +279,11 @@ public class LinkConverter {
 
             }
             if(listOfTracks.isEmpty()){
-                listOfTracks.add("_ERR_ERROR 45: No track from Spotify playlist could be loaded.");
+                listOfTracks.add(ERROR_PREFIX + "ERROR 45: No track from Spotify playlist could be loaded.");
             }
             return listOfTracks;
         } else {
-            listOfTracks.add("_ERR_ERROR 46: Spotify link was not valid.");
+            listOfTracks.add(ERROR_PREFIX + "ERROR 46: Spotify link was not valid.");
             return listOfTracks;
         }
 
@@ -293,7 +293,7 @@ public class LinkConverter {
         name = replaceUnallowedCharacters(name);
         List<String> l = Bot.instance.configWorker.getBotConfig("lastFMkey");
         if(l.isEmpty()){
-            l.add("_ERR_ERROR 70: No lastFM API KEY");
+            l.add(ERROR_PREFIX + "ERROR 70: No lastFM API KEY");
         } else {
             String key = l.get(0);
             String userAgent = "Music Bot/" + Main.version + " fab3F";
@@ -322,7 +322,7 @@ public class LinkConverter {
 
             @Override
             public void trackLoaded(AudioTrack audioTrack) {
-                handleYTListLoadingResult(channel, "_ERR_ERROR 61: YouTube Playlist should be loaded but single AudioTrack was loaded.");
+                handleYTListLoadingResult(channel, ERROR_PREFIX + "ERROR 61: YouTube Playlist should be loaded but single AudioTrack was loaded.");
             }
 
             @Override
@@ -335,7 +335,7 @@ public class LinkConverter {
                     }
                     msg = "YouTube Playlist wurde fertig geladen.";
                 } else {
-                    msg = "_ERR_ERROR 62: YouTube Playlist should be loaded but AudioPlaylist was empty.";
+                    msg = ERROR_PREFIX + "ERROR 62: YouTube Playlist should be loaded but AudioPlaylist was empty.";
                 }
                 handleYTListLoadingResult(channel, msg);
             }

@@ -2,7 +2,7 @@ package bot.commands.music;
 
 import bot.Bot;
 import bot.commands.ServerCommand;
-import bot.commands.VoiceStates;
+import bot.music.VoiceStates;
 import bot.music.GuildMusicManager;
 import bot.music.LinkConverter;
 import bot.music.MusicSong;
@@ -76,7 +76,7 @@ public class TrackInfoMusicCmd implements ServerCommand {
 
     @Override
     public BotPermission getNeededPermission() {
-        return BotPermission.MUSIC_NORMAL;
+        return BotPermission.VOICE_NORMAL;
     }
 
     @Override
