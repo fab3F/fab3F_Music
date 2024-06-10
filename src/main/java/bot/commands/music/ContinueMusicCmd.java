@@ -2,8 +2,8 @@ package bot.commands.music;
 
 import bot.Bot;
 import bot.commands.ServerCommand;
-import bot.music.VoiceStates;
 import bot.music.GuildMusicManager;
+import bot.music.VoiceStates;
 import bot.permissionsystem.BotPermission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
@@ -23,7 +23,7 @@ public class ContinueMusicCmd implements ServerCommand {
 
         musicManager.audioPlayer.setPaused(false);
 
-        e.reply("Wiedergabe wird fortgesetzt.").queue();
+        e.reply("Wiedergabe wird fortgesetzt").queue();
 
         return true;
     }

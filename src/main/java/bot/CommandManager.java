@@ -1,6 +1,7 @@
 package bot;
 
-import bot.commands.HelpCommand;
+import bot.commands.ConfigCmd;
+import bot.commands.HelpCmd;
 import bot.commands.PingCmd;
 import bot.commands.ServerCommand;
 import bot.commands.music.*;
@@ -11,6 +12,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,7 +25,7 @@ public class CommandManager {
         this.commands = new ConcurrentHashMap<>();
 
         this.commands.put("ping", new PingCmd());
-        this.commands.put("help", new HelpCommand());
+        this.commands.put("help", new HelpCmd());
 
         this.commands.put("play", new PlayMusicCmd());
         this.commands.put("playnow", new PlayNowMusicCmd());
@@ -44,6 +46,7 @@ public class CommandManager {
         this.commands.put("bassboost", new BassBoostMusicCmd());
         this.commands.put("autoplay", new AutoPlayMusicCmd());
 
+        this.commands.put("config", new ConfigCmd());
     }
 
     public void perform(SlashCommandInteractionEvent e) {
@@ -55,13 +58,13 @@ public class CommandManager {
             return;
         }
 
-        if(e.getMember() == null){
-            e.reply("Ein unbekannter Fehler ist aufgetreten.").setEphemeral(true).queue();
+        if(cmd.isOnlyForServer() && (!e.isFromGuild() || e.getGuild() == null)){
+            e.reply("Dieser Befehl muss auf einem Server ausgeführt werden.").setEphemeral(true).queue();
             return;
         }
 
-        if(cmd.isOnlyForServer() && (!e.isFromGuild() || e.getGuild() == null)){
-            e.reply("Dieser Befehl muss auf einem Server ausgeführt werden.").setEphemeral(true).queue();
+        if(e.getMember() == null){
+            e.reply("Ein unbekannter Fehler ist aufgetreten.").setEphemeral(true).queue();
             return;
         }
 
@@ -126,7 +129,7 @@ public class CommandManager {
             SlashCommandData slashCommandData = Commands.slash(cmd.cmdName().replace("{cmdName}", cmdName), cmd.getDescription());
             if (cmd.getOptions() != null) {
                 for (ServerCommand.Option option : cmd.getOptions()) {
-                    slashCommandData = slashCommandData.addOption(option.type, option.name, option.description.replace("{cmdName}", cmdName), option.required);
+                    slashCommandData = slashCommandData.addOption(option.type, option.name.toLowerCase(Locale.ROOT), option.description.replace("{cmdName}", cmdName), option.required);
                 }
             }
             commandDatas[i++] = slashCommandData;

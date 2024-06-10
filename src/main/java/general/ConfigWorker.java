@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 
@@ -19,17 +20,18 @@ public class ConfigWorker {
     }
 
     public List<String> getBotConfig(String name){
-        return getConfig(new File(configPath + filesep + "bot.config"), name);
+        return getConfig(new File(configPath + filesep + "bot.config"), name.toLowerCase(Locale.ROOT));
     }
 
     public List<String> getServerConfig(String guildId, String name){
         if(createConfigForServer(guildId)){
-            return getConfig(new File(configPath + filesep + "server" + filesep + guildId + ".config"), name);
+            return getConfig(new File(configPath + filesep + "server" + filesep + guildId + ".config"), name.toLowerCase(Locale.ROOT));
         }
         return new ArrayList<>();
     }
 
     public boolean addServerConfig(String guildId, String name, String value){
+        name = name.toLowerCase(Locale.ROOT);
         if(!createConfigForServer(guildId)){
             return false;
         }
@@ -39,6 +41,7 @@ public class ConfigWorker {
     }
 
     public boolean removeServerConfig(String guildId, String name, String value){
+        name = name.toLowerCase(Locale.ROOT);
         if(!createConfigForServer(guildId)){
             return false;
         }
@@ -50,6 +53,7 @@ public class ConfigWorker {
     }
 
     public boolean removeAllServerConfig(String guildId, String name){
+        name = name.toLowerCase(Locale.ROOT);
         if(!createConfigForServer(guildId)){
             return false;
         }
@@ -129,7 +133,7 @@ public class ConfigWorker {
         index++;
         boolean remove = true;
         while(remove){
-            if(lines.get(index).startsWith("  ")){
+            if(!(lines.size() < index+1) && lines.get(index).startsWith("  ")){
                 lines.remove(index);
             }else{
                 remove = false;

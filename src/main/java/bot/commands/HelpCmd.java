@@ -3,7 +3,7 @@ package bot.commands;
 import bot.permissionsystem.BotPermission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
-public class HelpCommand implements ServerCommand {
+public class HelpCmd implements ServerCommand {
     @Override
     public boolean peformCommand(SlashCommandInteractionEvent event) {
         event.reply("Alle wichtigen Informationen findest du auf dieser Seite: https://fab3F.github.io/projects/discordbot/help\n" +
