@@ -69,15 +69,23 @@ public class QueueMusicCmd implements ServerCommand {
     }
 
     @Override
-    public BotPermission getNeededPermission() {
+    public BotPermission getUserPermission() {
         return BotPermission.VOICE_NORMAL;
     }
 
     @Override
-    public String getUsage(){
-        return """
-                Benutze ```/queue```
-                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.
-                Die Wiedergabeliste darf nicht leer sein.""";
+    public BotPermission getBotPermission() {
+        return BotPermission.BOT_VOICE;
+    }
+
+    @Override
+    public String getFurtherUsage() {
+        return "Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.\n" +
+                "Die Wiedergabeliste darf nicht leer sein.";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Erhalte Informationen zur aktuellen Wiedergabeliste";
     }
 }

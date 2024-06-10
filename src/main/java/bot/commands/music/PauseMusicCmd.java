@@ -38,14 +38,23 @@ public class PauseMusicCmd implements ServerCommand {
     }
 
     @Override
-    public BotPermission getNeededPermission() {
+    public BotPermission getUserPermission() {
         return BotPermission.VOICE_NORMAL;
     }
 
     @Override
-    public String getUsage(){
+    public BotPermission getBotPermission() {
+        return BotPermission.BOT_VOICE;
+    }
+
+    @Override
+    public String getDescription() {
+        return "Pausiert die Wiedergabe des aktuellen Songs";
+    }
+
+    @Override
+    public String getFurtherUsage(){
         return """
-                Benutze ```/pause```
                 Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.
                 Es muss gerade ein Song abgespielt werden.""";
     }

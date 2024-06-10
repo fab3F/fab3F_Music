@@ -17,14 +17,17 @@ public class HelpCommand implements ServerCommand {
     }
 
     @Override
-    public BotPermission getNeededPermission() {
+    public BotPermission getUserPermission() {
         return BotPermission.TEXT_NORMAL;
     }
 
     @Override
-    public String getUsage() {
-        return """
-                Benutze ```/help```
-                Dies kann dir bei Problemen weiterhelfen.""";
+    public BotPermission getBotPermission() {
+        return BotPermission.BOT_TEXT;
+    }
+
+    @Override
+    public String getDescription() {
+        return "Ausführliche Hilfe und Erkläruingen für die Funktionen des Bots";
     }
 }

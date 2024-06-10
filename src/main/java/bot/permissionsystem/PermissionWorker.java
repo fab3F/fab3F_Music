@@ -7,8 +7,8 @@ import java.util.Set;
 
 public class PermissionWorker {
 
-    public boolean hasUserPermission(Member member, BotPermission botPermission) {
-        Set<Permission> requiredPermissions = PermissionConfig.USER_PERMISSIONS_MAP.get(botPermission);
+    public boolean hasPermission(Member member, BotPermission botPermission) {
+        Set<Permission> requiredPermissions = PermissionConfig.PERMISSIONS_MAP.get(botPermission);
         if (requiredPermissions == null) {
             return false;
         }

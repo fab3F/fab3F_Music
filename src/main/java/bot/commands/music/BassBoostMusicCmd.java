@@ -6,8 +6,14 @@ import bot.music.VoiceStates;
 import bot.music.GuildMusicManager;
 import bot.permissionsystem.BotPermission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 
 public class BassBoostMusicCmd implements ServerCommand {
+    @Override
+    public String cmdName() {
+        return "bassboost";
+    }
+
     @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
         if(e.getOption("value") == null){
@@ -35,15 +41,29 @@ public class BassBoostMusicCmd implements ServerCommand {
     }
 
     @Override
-    public BotPermission getNeededPermission() {
+    public BotPermission getUserPermission() {
         return BotPermission.VOICE_ADVANCED;
     }
 
     @Override
-    public String getUsage() {
+    public BotPermission getBotPermission() {
+        return BotPermission.BOT_VOICE;
+    }
+
+    @Override
+    public String getFurtherUsage() {
         return """
-                Benutze ```/bassboost <value>```
                 Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.
                 Der Wert muss zwischen 0 und 200 liegen.""";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Booste den Bass des Bots (experimentell)";
+    }
+
+    @Override
+    public Option[] getOptions() {
+        return new ServerCommand.Option[]{new Option(OptionType.STRING, "value", "Wert zwischen 0 und 200 (Prozent)", false)};
     }
 }

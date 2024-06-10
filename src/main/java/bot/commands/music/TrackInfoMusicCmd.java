@@ -75,15 +75,23 @@ public class TrackInfoMusicCmd implements ServerCommand {
     }
 
     @Override
-    public BotPermission getNeededPermission() {
+    public BotPermission getUserPermission() {
         return BotPermission.VOICE_NORMAL;
     }
 
     @Override
-    public String getUsage() {
-        return ServerCommand.super.getUsage() + "\n" +
-                """
-                    Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.
-                    Um diesen Befehl auszuführen, muss gerade ein Song abgespielt werden.""";
+    public BotPermission getBotPermission() {
+        return BotPermission.BOT_VOICE;
+    }
+
+    @Override
+    public String getFurtherUsage() {
+        return "Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.\n" +
+                "Um diesen Befehl auszuführen, muss gerade ein Song abgespielt werden.";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Informationen zu dem Lied, was gerade abgespielt wird";
     }
 }

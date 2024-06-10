@@ -12,6 +12,11 @@ import net.dv8tion.jda.api.managers.AudioManager;
 
 public class AutoPlayMusicCmd implements ServerCommand {
     @Override
+    public String cmdName() {
+        return "autoplay";
+    }
+
+    @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
         if(e.getMember() == null || e.getGuild() == null){
             return false;
@@ -51,15 +56,23 @@ public class AutoPlayMusicCmd implements ServerCommand {
     }
 
     @Override
-    public BotPermission getNeededPermission() {
+    public BotPermission getUserPermission() {
         return BotPermission.VOICE_ADVANCED;
     }
 
     @Override
-    public String getUsage() {
-        return """
-                Benutze ```/autoplay```
-                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden, falls der Bot bereits in einem Sprachkanal ist.
-                Es können YouTube-Link, Spotify-Link sowie beliebige Suchbegriffe verwendet werden.""";
+    public BotPermission getBotPermission() {
+        return BotPermission.BOT_VOICE;
+    }
+
+    @Override
+    public String getFurtherUsage() {
+        return "Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden, falls der Bot bereits in einem Sprachkanal ist.\n" +
+                "Es können YouTube-Link, Spotify-Link sowie beliebige Suchbegriffe verwendet werden.";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Spiele automatisch weitere Songs ab, sobald die Wiedergabeliste leer ist!";
     }
 }

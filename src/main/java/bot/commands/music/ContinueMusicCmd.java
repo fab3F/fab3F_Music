@@ -34,14 +34,23 @@ public class ContinueMusicCmd implements ServerCommand {
     }
 
     @Override
-    public BotPermission getNeededPermission() {
+    public BotPermission getUserPermission() {
         return BotPermission.VOICE_NORMAL;
     }
 
     @Override
-    public String getUsage(){
+    public BotPermission getBotPermission() {
+        return BotPermission.BOT_VOICE;
+    }
+
+    @Override
+    public String getDescription() {
+        return "Setzt die Wiedergabe fort.";
+    }
+
+    @Override
+    public String getFurtherUsage(){
         return """
-                Benutze ```/continue```
                 Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.
                 Es muss gerade ein Song pausiert sein, um die Wiedergabe fortzusetzen.""";
     }

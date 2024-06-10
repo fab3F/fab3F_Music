@@ -33,15 +33,23 @@ public class SkipMusicCmd implements ServerCommand {
     }
 
     @Override
-    public BotPermission getNeededPermission() {
+    public BotPermission getUserPermission() {
         return BotPermission.VOICE_ADVANCED;
     }
 
     @Override
-    public String getUsage(){
-        return """
-                Benutze ```/skip```
-                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.
-                Es muss gerade ein Song abgespielt werden.""";
+    public BotPermission getBotPermission() {
+        return BotPermission.BOT_VOICE;
+    }
+
+    @Override
+    public String getFurtherUsage() {
+        return "Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.\n" +
+                "Es muss gerade ein Song abgespielt werden.";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Überspringt den aktuellen Song";
     }
 }

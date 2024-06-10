@@ -6,6 +6,8 @@ import bot.music.VoiceStates;
 import bot.music.GuildMusicManager;
 import bot.permissionsystem.BotPermission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 public class VolumeMusicCmd implements ServerCommand {
     @Override
@@ -37,15 +39,28 @@ public class VolumeMusicCmd implements ServerCommand {
     }
 
     @Override
-    public BotPermission getNeededPermission() {
+    public BotPermission getUserPermission() {
         return BotPermission.VOICE_NORMAL;
     }
 
     @Override
-    public String getUsage() {
-        return """
-                Benutze ```/volume <value>```
-                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.
-                Der Wert muss zwischen 0 und 100 liegen.""";
+    public BotPermission getBotPermission() {
+        return BotPermission.BOT_VOICE;
+    }
+
+    @Override
+    public String getFurtherUsage() {
+        return "Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.\n" +
+                "Der Wert muss zwischen 0 und 100 liegen.";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Ändere oder erhalte allgemeine Lautstärke des Bots";
+    }
+
+    @Override
+    public Option[] getOptions() {
+        return new Option[]{new Option(OptionType.INTEGER, "value", "Wert zwischen 0 und 100 (Prozent)", false)};
     }
 }

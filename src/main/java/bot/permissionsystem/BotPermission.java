@@ -11,7 +11,7 @@ public enum BotPermission {
     BOT_TEXT(""),
     BOT_ADMIN("");
 
-    private final String description;
+    private String description;
 
     BotPermission(String description) {
         this.description = description;
@@ -19,5 +19,13 @@ public enum BotPermission {
 
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description){
+        this.description = description;
+    }
+
+    public boolean isBotBotPermission() {
+        return this == BOT_VOICE || this == BOT_TEXT || this == BOT_ADMIN;
     }
 }

@@ -28,14 +28,22 @@ public class StopMusicCmd implements ServerCommand {
     }
 
     @Override
-    public BotPermission getNeededPermission() {
+    public BotPermission getUserPermission() {
         return BotPermission.VOICE_NORMAL;
     }
 
     @Override
-    public String getUsage(){
-        return """
-                Benutze ```/stop```
-                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.""";
+    public BotPermission getBotPermission() {
+        return BotPermission.BOT_VOICE;
+    }
+
+    @Override
+    public String getFurtherUsage() {
+        return "Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Stoppt die Musik und löscht die Wiedergabeliste";
     }
 }

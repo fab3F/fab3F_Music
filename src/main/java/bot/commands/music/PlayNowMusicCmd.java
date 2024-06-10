@@ -8,9 +8,15 @@ import bot.permissionsystem.BotPermission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.managers.AudioManager;
 
 public class PlayNowMusicCmd implements ServerCommand {
+    @Override
+    public String cmdName() {
+        return "playnow";
+    }
+
     @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
         if(e.getOption("title") == null || e.getMember() == null || e.getGuild() == null){
@@ -53,15 +59,28 @@ public class PlayNowMusicCmd implements ServerCommand {
     }
 
     @Override
-    public BotPermission getNeededPermission() {
+    public BotPermission getUserPermission() {
         return BotPermission.VOICE_ADVANCED;
     }
 
     @Override
-    public String getUsage() {
-        return """
-                Benutze ```/playnow <Name | URL | Playlist>```
-                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden, falls der Bot bereits in einem Sprachkanal ist.
-                Es können YouTube-Link, Spotify-Link sowie beliebige Suchbegriffe verwendet werden.""";
+    public BotPermission getBotPermission() {
+        return BotPermission.BOT_VOICE;
+    }
+
+    @Override
+    public String getFurtherUsage() {
+        return "Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden, falls der Bot bereits in einem Sprachkanal ist.\n" +
+                "Es können YouTube-Link, Spotify-Link sowie beliebige Suchbegriffe verwendet werden.";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Spiele einen Song sofort als nächsten ab (Nicht für Playlists verfügbar)";
+    }
+
+    @Override
+    public Option[] getOptions() {
+        return new ServerCommand.Option[]{new Option(OptionType.STRING, "title", "Der Name oder die URL des Songs", true)};
     }
 }

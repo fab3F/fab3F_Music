@@ -9,6 +9,11 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 public class ClearQueueMusicCmd implements ServerCommand {
     @Override
+    public String cmdName() {
+        return "clearqueue";
+    }
+
+    @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
         if(!VoiceStates.inSameVoiceChannel(e.getGuild().getSelfMember(), e.getMember()))
             return false;
@@ -29,14 +34,22 @@ public class ClearQueueMusicCmd implements ServerCommand {
     }
 
     @Override
-    public BotPermission getNeededPermission() {
+    public BotPermission getUserPermission() {
         return BotPermission.VOICE_ADVANCED;
     }
 
     @Override
-    public String getUsage(){
-        return """
-                Benutze ```/clearqueue```
-                Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.""";
+    public BotPermission getBotPermission() {
+        return BotPermission.BOT_VOICE;
+    }
+
+    @Override
+    public String getFurtherUsage() {
+        return "Um diesen Befehl auszuführen, musst du dich im selben Sprachkanal wie der Bot befinden.";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Leert die Wiedergabeliste";
     }
 }
