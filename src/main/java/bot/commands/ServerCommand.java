@@ -1,21 +1,16 @@
 package bot.commands;
 
-
-import bot.permissionsystem.BotPermission;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-
 public interface ServerCommand {
 
     default String cmdName(){
         return "{cmdName}";
     }
 
-    boolean peformCommand(SlashCommandInteractionEvent event);
+    boolean peformCommand(net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent event);
     boolean isOnlyForServer();
-    BotPermission getUserPermission();
+    bot.permissionsystem.BotPermission getUserPermission();
 
-    BotPermission getBotPermission();
+    bot.permissionsystem.BotPermission getBotPermission();
 
     default String getFurtherUsage(){
         return null;
@@ -29,11 +24,11 @@ public interface ServerCommand {
 
 
     class Option{
-        public OptionType type;
+        public net.dv8tion.jda.api.interactions.commands.OptionType type;
         public String name;
         public String description;
         public boolean required;
-        public Option(OptionType type, String name, String description, boolean required){
+        public Option(net.dv8tion.jda.api.interactions.commands.OptionType type, String name, String description, boolean required){
             this.type = type;
             this.name = name;
             this.description = description;

@@ -10,41 +10,23 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import org.apache.hc.core5.http.ParseException;
-import se.michaelthelin.spotify.SpotifyApi;
-import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
-import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
-import se.michaelthelin.spotify.model_objects.specification.*;
-import se.michaelthelin.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
-import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistRequest;
-import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LinkConverter {
-
-    private final String spotifyClientId;
-    private final String spotifyClientSecret;
-    private SpotifyApi spotifyApi;
+public class LinkConverter extends SpotifyWorker{
 
     public static final String ERROR_PREFIX = "_ERR_";
     public static final Pattern YOUTUBE_VIDEO_ID_PATTERN = Pattern.compile("(?:https?://)?(?:www\\.)?(?:youtube\\.com|youtu\\.be)/(?:.*[?&]v=|v/|embed/|watch\\?v=|.*#.*/)?([^&\\n?#]+)");
     public static final Pattern YOUTUBE_PLAYLIST_ID_PATTERN = Pattern.compile("(?:https?://)?(?:www\\.)?youtube\\.com/playlist\\?list=([^&\\n?#]+)");
 
     public LinkConverter(String spotifyClientId, String spotifyClienSecret){
-        this.spotifyClientId = spotifyClientId;
-        this.spotifyClientSecret = spotifyClienSecret;
-    }
-
-    public void close(){
-        this.spotifyApi = null;
+        super(spotifyClientId, spotifyClienSecret);
     }
 
 
@@ -66,6 +48,7 @@ public class LinkConverter {
             input =  "https://www.youtube.com/watch?v=" + viMatcher.group(1);
         }
 
+
         // youtu.be should never be expaned because of video pattern matcher
         if((input.startsWith("https") && input.contains("youtu.be/")) || (input.startsWith("https") && input.contains("spotify.link/")) ){
 
@@ -85,7 +68,6 @@ public class LinkConverter {
         }
 
 
-
         else if(input.startsWith("https") && input.contains("youtube.com/playlist") && input.contains("list=")){
             Main.debug("Loading YT List: " + input);
             e.getHook().sendMessage("YouTube Playlist wird geladen und zur Wiedergabeliste hinzugefügt, dies kann einige Sekunden dauern: " + input).queue();
@@ -94,10 +76,11 @@ public class LinkConverter {
             // result i handeled in function
         }
 
+
         else if(input.startsWith("https") && input.contains("spotify.com/") && input.contains("/track/")){
             Main.debug("Loading Spotify Song: " + input);
 
-            String song = this.loadSpotify(input).get(0);
+            String song = this.loadSpotifyLink(input).get(0);
             if(error(e.getHook(), song))
                 return;
 
@@ -111,7 +94,7 @@ public class LinkConverter {
             Main.debug("Loading Spotify List: " + input);
 
             e.getHook().sendMessage("Spotify Playlist wird geladen und zur Wiedergabeliste hinzugefügt, dies kann einige Sekunden dauern: " + input).queue();
-            List<String> list = this.loadSpotify(input);
+            List<String> list = this.loadSpotifyLink(input);
 
             if(error(e.getChannel().asTextChannel(), list.get(0)))
                 return;
@@ -197,121 +180,20 @@ public class LinkConverter {
         }
     }
 
-    private boolean initializeSpotify(){
-        if(spotifyApi != null)
-            return true;
-
-        this.spotifyApi = new SpotifyApi.Builder().setClientId(this.spotifyClientId).setClientSecret(this.spotifyClientSecret).build();
-        ClientCredentialsRequest request = this.spotifyApi.clientCredentials().build();
-        ClientCredentials creds;
-        try {
-            creds = request.execute();
-        } catch (IOException | SpotifyWebApiException | ParseException ex) {
-            this.spotifyApi = null;
-            return false;
-        }
-        spotifyApi.setAccessToken(creds.getAccessToken());
-        return true;
-    }
-
-    private String getSpotifyArtistAndName(String trackID) {
-        StringBuilder artistNameAndTrackName;
-        GetTrackRequest trackRequest = spotifyApi.getTrack(trackID).build();
-
-        Track track;
-
-        try{
-            track = trackRequest.execute();
-        }catch (IOException | ParseException | SpotifyWebApiException e){
-            return ERROR_PREFIX + "ERROR 41: Spotify track request was not successful.";
-        }
-
-        artistNameAndTrackName = new StringBuilder(track.getName() + " - ");
-
-        ArtistSimplified[] artists = track.getArtists();
-        for(ArtistSimplified i : artists) {
-            artistNameAndTrackName.append(i.getName()).append(" ");
-        }
-
-        return artistNameAndTrackName.toString();
-    }
-
-    private ArrayList<String> loadSpotify(String link){
-        link = link.replaceFirst("\\?.*$", "");
-        ArrayList<String> listOfTracks = new ArrayList<>();
-
-        if(!initializeSpotify()){
-            listOfTracks.add(ERROR_PREFIX + "ERROR 40: Cannot connect with Spotify API.");
-            return listOfTracks;
-        }
-
-        Pattern trackPattern = Pattern.compile("track/([a-zA-Z0-9]+)");
-        Matcher trackMatcher = trackPattern.matcher(link);
-
-        Pattern playlistPattern = Pattern.compile("playlist/([a-zA-Z0-9]+)");
-        Matcher playlistMatcher = playlistPattern.matcher(link);
-
-        if (trackMatcher.find()) {
-            String trackId = trackMatcher.group(1);
-            listOfTracks.add(this.getSpotifyArtistAndName(trackId));
-            return listOfTracks;
-
-        } else if (playlistMatcher.find()) {
-            String playlistId = playlistMatcher.group(1);
-            GetPlaylistRequest playlistRequest = spotifyApi.getPlaylist(playlistId).build();
-            Playlist playlist;
-            try{
-                playlist = playlistRequest.execute();
-            }catch (IOException | ParseException | SpotifyWebApiException e){
-                listOfTracks.add(ERROR_PREFIX + "ERROR 42: Spotify playlist request was not successful. The playlist may be set to private.");
-                return listOfTracks;
-            }
-            Paging<PlaylistTrack> playlistPaging = playlist.getTracks();
-            PlaylistTrack[] playlistTracks = playlistPaging.getItems();
-
-            for (PlaylistTrack i : playlistTracks) {
-                Track track = (Track) i.getTrack();
-                String trackID = track.getId();
-                String aAndN = this.getSpotifyArtistAndName(trackID);
-                if(!aAndN.startsWith(ERROR_PREFIX)){
-                    listOfTracks.add(aAndN);
-                }
-
-            }
-            if(listOfTracks.isEmpty()){
-                listOfTracks.add(ERROR_PREFIX + "ERROR 45: No track from Spotify playlist could be loaded.");
-            }
-            return listOfTracks;
-        } else {
-            listOfTracks.add(ERROR_PREFIX + "ERROR 46: Spotify link was not valid.");
-            return listOfTracks;
-        }
-
-    }
 
     public void loadSimilarSongs(String name, TextChannel channel){
         name = repairTextSearch(name);
-        List<String> l = Bot.instance.configWorker.getBotConfig("lastFMkey");
-        if(l.isEmpty()){
-            l.add(ERROR_PREFIX + "ERROR 70: No lastFM API KEY");
-        } else {
-            String key = l.get(0);
-            String userAgent = "Music Bot/" + Main.version + " fab3F";
-            String base = "http://ws.audioscrobbler.com/2.0/";
-            l = LastFMFinder.getSimilarSongs(name, key, userAgent, base);
-        }
+        List<String> l = loadSpotifyRecommended(name);
         TrackScheduler scheduler = Bot.instance.getPM().getGuildMusicManager(channel.getGuild()).scheduler;
-        if(l.get(0).startsWith(ERROR_PREFIX) && name.length() > 25){
-            loadSimilarSongs(name.substring(0, Math.min(50, name.length()) - 4), channel);
-            return;
-        } else if(error(channel, l.get(0))){
-            if(scheduler.isAutoplay){
+        if(error(channel, l.get(0))) {
+            if (scheduler.isAutoplay) {
                 scheduler.toogleAutoPlay();
             }
             return;
         }
+        String autoPlayerName = Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0);
         for(String s : l){
-            scheduler.queue(new MusicSong("ytsearch:" + s + " audio", channel, Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0)), false);
+            scheduler.queue(new MusicSong("ytsearch:" + s + " audio", channel, autoPlayerName), false);
         }
     }
 

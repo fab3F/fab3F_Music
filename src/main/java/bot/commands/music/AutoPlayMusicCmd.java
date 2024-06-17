@@ -40,7 +40,7 @@ public class AutoPlayMusicCmd implements ServerCommand {
         musicManager.scheduler.lastUsedTextChannel = e.getChannel().asTextChannel();
         boolean autoplay = musicManager.scheduler.toogleAutoPlay();
         if(autoplay){
-            e.reply("Autoplay wurde aktiviert. Nachdem die Wiedergabeliste abgespielt wurde, werden empfohlene Songs abgespielt.").queue();
+            e.reply("ICH FINDE IMMER WAS. Autoplay wurde aktiviert. Nachdem die Wiedergabeliste abgespielt wurde, werden empfohlene Songs abgespielt.").queue();
         }else{
             if(musicManager.scheduler.getLastPlaying().user.equals(Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0))){
                 musicManager.clearQueue();
