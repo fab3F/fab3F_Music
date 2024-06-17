@@ -290,7 +290,7 @@ public class LinkConverter {
     }
 
     public void loadSimilarSongs(String name, TextChannel channel){
-        name = replaceUnallowedCharacters(name);
+        name = repairTextSearch(name);
         List<String> l = Bot.instance.configWorker.getBotConfig("lastFMkey");
         if(l.isEmpty()){
             l.add(ERROR_PREFIX + "ERROR 70: No lastFM API KEY");
@@ -388,6 +388,17 @@ public class LinkConverter {
             }
         }
         return result.toString();
+    }
+
+    // replaces brackets, unallowed symbols
+    private String repairTextSearch(String search){
+        return replaceUnallowedCharacters(search)
+                .replaceAll("\\([^)]*\\)", "")
+                .replaceAll("\\[[^]]*]", "")
+                .replaceAll(" - ", " ")
+                .replaceAll(" & ", " ")
+                .replaceAll("\\|", "")
+                .replaceAll("#", "");
     }
 
 

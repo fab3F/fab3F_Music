@@ -1,9 +1,6 @@
 package bot;
 
-import bot.commands.ConfigCmd;
-import bot.commands.HelpCmd;
-import bot.commands.PingCmd;
-import bot.commands.ServerCommand;
+import bot.commands.*;
 import bot.commands.music.*;
 import bot.permissionsystem.BotPermission;
 import general.Main;
@@ -26,6 +23,7 @@ public class CommandManager {
 
         this.commands.put("ping", new PingCmd());
         this.commands.put("help", new HelpCmd());
+        this.commands.put("clear", new ClearCmd());
 
         this.commands.put("play", new PlayMusicCmd());
         this.commands.put("playnow", new PlayNowMusicCmd());
@@ -78,14 +76,14 @@ public class CommandManager {
 
 
         BotPermission neededUserPerm = cmd.getUserPermission();
-        if(!Bot.instance.pW.hasPermission(e.getMember(), neededUserPerm)){
+        if(!Bot.instance.pW.hasPermission(e.getMember(), neededUserPerm) && !Bot.instance.configWorker.getBotConfig("adminIds").contains(e.getUser().getId())){
             e.reply("Dir fehlt folgende Berechtigung, um diesen Befehl auszuführen: " + neededUserPerm.name() + " - " + neededUserPerm.getDescription()).setEphemeral(true).queue();
             return;
         }
 
         if(cmd.getOptions() != null){
             for(ServerCommand.Option option : cmd.getOptions()){
-                if(option.required && e.getOption(option.name) != null) {
+                if(option.required && e.getOption(option.name) == null) {
                     e.reply(getUsage(cmd, cmdName)).setEphemeral(true).queue();
                     return;
                 }

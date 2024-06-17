@@ -9,7 +9,7 @@ public class MessageListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if(Bot.instance.configWorker.getBotConfig("adminIDs").contains(event.getAuthor().getId())) {
+        if(Bot.instance.configWorker.getBotConfig("adminIds").contains(event.getAuthor().getId())) {
             String msg = event.getMessage().getContentDisplay();
             String[] parts = msg.split(" ");
 
