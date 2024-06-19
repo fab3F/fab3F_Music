@@ -166,7 +166,7 @@ public class TrackScheduler extends AudioEventAdapter {
             searchingForAutoplay = true;
 
             if(this.lastPlayingSong == null){
-                Bot.instance.getPM().linkConverter.loadSimilarSongs("TOPCHART", this.lastUsedTextChannel);
+                Bot.instance.getPM().linkConverter.loadSimilarSongs(Bot.instance.configWorker.getServerConfig(this.lastUsedTextChannel.getGuild().getId(), "defaultautoplaysong").get(0), this.lastUsedTextChannel);
             }else{
                 Bot.instance.getPM().linkConverter.loadSimilarSongs(lastPlayingSong.getTrack().getInfo().title, lastPlayingSong.channel);
             }

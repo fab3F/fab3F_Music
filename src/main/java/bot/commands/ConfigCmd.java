@@ -3,6 +3,7 @@ package bot.commands;
 import bot.Bot;
 import bot.permissionsystem.BotPermission;
 import general.ConfigWorker;
+import general.Main;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -31,14 +32,28 @@ public class ConfigCmd implements ServerCommand{
         if(!options.isEmpty()){
             ConfigWorker g = Bot.instance.configWorker;
 
+            boolean b;
+
             for(OptionMapping o : options){
-                g.removeAllServerConfig(id, o.getName());
+                b = g.removeAllServerConfig(id, o.getName());
+                if(!b){
+                    Main.debug("Error when trying to removeAllServerConfig: " + id + " AND " + o.getName());
+                    event.getHook().sendMessage("Fehler beim Ändern folgender Einstellung: " + o.getName()).queue();
+                    event.getChannel().sendMessageEmbeds(printCurrent(id)).queue();
+                    return true;
+                }
                 List<String> v = new ArrayList<>(Arrays.asList(o.getAsString().split(",")));
                 if(v.get(0).equals("-1")){
                     v = g.getServerConfig("template", o.getName());
                 }
                 for(String value : v){
-                    g.addServerConfig(id, o.getName(), value);
+                    b = g.addServerConfig(id, o.getName(), value);
+                    if(!b){
+                        Main.debug("Error when trying to addServerConfig: " + id + " AND " + o.getName() + " AND " + value);
+                        event.getHook().sendMessage("Fehler beim Ändern folgender Einstellung: " + o.getName()).queue();
+                        event.getChannel().sendMessageEmbeds(printCurrent(id)).queue();
+                        return true;
+                    }
                 }
 
             }
@@ -81,6 +96,7 @@ public class ConfigCmd implements ServerCommand{
     @Override
     public String getFurtherUsage() {
         return """
+                Verwende diesen Befehl nur, wenn du weißt, was du tust!
                 Ändere die Konfiguration des Bots wie folgt:
                 1) Wähle mindestens eine Option zum Ändern aus.
                 2) Gib einen neuen Wert für die ausgewählte Option ein.
@@ -89,7 +105,7 @@ public class ConfigCmd implements ServerCommand{
 
     @Override
     public String getDescription() {
-        return "Ändere die Einstellungen des Bots";
+        return "Ändere die Einstellungen des Bots. Verwende diesen Befehl nur, wenn du weißt, was du tust!";
     }
 
     @Override
