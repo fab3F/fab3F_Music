@@ -21,6 +21,7 @@ public class SpotifyWorker {
     private final String spotifyClientId;
     private final String spotifyClientSecret;
     private SpotifyApi spotifyApi;
+    private long expiresIn;
 
     private final String ERROR_PREFIX = LinkConverter.ERROR_PREFIX;
 
@@ -28,26 +29,32 @@ public class SpotifyWorker {
     protected SpotifyWorker(String spotifyClientId, String spotifyClienSecret){
         this.spotifyClientId = spotifyClientId;
         this.spotifyClientSecret = spotifyClienSecret;
+        this.expiresIn = System.currentTimeMillis() - 1000;
     }
 
     protected void close(){
         this.spotifyApi = null;
     }
 
-    protected boolean initializeSpotify(){
-        if(spotifyApi != null)
-            return true;
-
-        this.spotifyApi = new SpotifyApi.Builder().setClientId(this.spotifyClientId).setClientSecret(this.spotifyClientSecret).build();
-        ClientCredentialsRequest request = this.spotifyApi.clientCredentials().build();
-        ClientCredentials creds;
-        try {
-            creds = request.execute();
-        } catch (IOException | SpotifyWebApiException | ParseException ex) {
-            this.spotifyApi = null;
-            return false;
+    protected boolean initializedSpotify(){
+        if(this.spotifyApi == null){
+            this.spotifyApi = new SpotifyApi.Builder().setClientId(this.spotifyClientId).setClientSecret(this.spotifyClientSecret).build();
         }
-        spotifyApi.setAccessToken(creds.getAccessToken());
+
+        if(expiresIn - 10 * 1000 > System.currentTimeMillis()){
+            return true;
+        }else{
+            ClientCredentialsRequest request = this.spotifyApi.clientCredentials().build();
+            ClientCredentials creds;
+            try {
+                creds = request.execute();
+            } catch (IOException | SpotifyWebApiException | ParseException ex) {
+                this.spotifyApi = null;
+                return false;
+            }
+            spotifyApi.setAccessToken(creds.getAccessToken());
+            this.expiresIn = System.currentTimeMillis() + (creds.getExpiresIn() * 1000);
+        }
         return true;
     }
 
@@ -55,7 +62,7 @@ public class SpotifyWorker {
         link = link.replaceFirst("\\?.*$", ""); // remove parameters
         ArrayList<String> listOfTracks = new ArrayList<>();
 
-        if(!initializeSpotify()){
+        if(!initializedSpotify()){
             listOfTracks.add(ERROR_PREFIX + "ERROR 40: Cannot connect with Spotify API.");
             return listOfTracks;
         }
@@ -101,7 +108,7 @@ public class SpotifyWorker {
 
     protected ArrayList<String> loadSpotifyRecommended(String name){
         ArrayList<String> a = new ArrayList<>(1);
-        if(!initializeSpotify()){
+        if(!initializedSpotify()){
             a.add(ERROR_PREFIX + "ERROR 40: Cannot connect with Spotify API.");
             return a;
         }
@@ -153,8 +160,5 @@ public class SpotifyWorker {
         }
         return list;
     }
-
-
-
 
 }
