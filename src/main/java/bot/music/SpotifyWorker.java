@@ -1,5 +1,6 @@
 package bot.music;
 
+import com.neovisionaries.i18n.CountryCode;
 import org.apache.hc.core5.http.ParseException;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
@@ -112,12 +113,16 @@ public class SpotifyWorker {
             a.add(ERROR_PREFIX + "ERROR 40: Cannot connect with Spotify API.");
             return a;
         }
-        String trackId = searchTrackId(name);
-        if(trackId.startsWith(ERROR_PREFIX)){
-            a.add(trackId);
+        SearchTracksRequest request = spotifyApi.searchTracks(name).build();
+        Track track;
+        try{
+            track = request.execute().getItems()[0];
+        }catch (IOException | ParseException | SpotifyWebApiException e){
+            a.add(ERROR_PREFIX + "ERROR 42: Spotify search track request was not successful.");
             return a;
         }
-        return getRecommended(trackId);
+        String artistIds = track.getArtists()[0].getId() + (track.getArtists().length > 1 ? "," + track.getArtists()[1].getId() : "");
+        return getRecommended(track.getId(), artistIds);
     }
 
     private String getSpotifyArtistAndName(String trackId) {
@@ -131,20 +136,13 @@ public class SpotifyWorker {
         return track.getName() + " " + track.getArtists()[0].getName();
     }
 
-    private String searchTrackId(String query){
-        SearchTracksRequest request = spotifyApi.searchTracks(query).build();
-        Track track;
-        try{
-            track = request.execute().getItems()[0];
-        }catch (IOException | ParseException | SpotifyWebApiException e){
-            return ERROR_PREFIX + "ERROR 42: Spotify search track request was not successful.";
-        }
-        return track.getId();
-    }
-
-    private ArrayList<String> getRecommended(String trackId){
+    private ArrayList<String> getRecommended(String trackId, String artistIds){
         ArrayList<String> list = new ArrayList<>();
-        GetRecommendationsRequest request = spotifyApi.getRecommendations().seed_tracks(trackId).limit(30).build();
+        GetRecommendationsRequest request = spotifyApi.getRecommendations()
+                .seed_tracks(trackId)
+                .seed_artists(artistIds)
+                .market(CountryCode.DE)
+                .limit(30).build();
         Recommendations re;
         try {
             re = request.execute();

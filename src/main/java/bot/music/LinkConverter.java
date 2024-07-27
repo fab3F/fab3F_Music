@@ -16,6 +16,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+import java.util.NavigableMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,7 +35,7 @@ public class LinkConverter extends SpotifyWorker{
         if(e.getGuild() == null)
             return;
 
-        input = replaceUnallowedCharacters(input);
+        Main.debug("Loading new Input: " + input + " replaceUnallowedCharacters --> " + (input = replaceUnallowedCharacters(input)));
 
         GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
 
@@ -52,12 +53,11 @@ public class LinkConverter extends SpotifyWorker{
         // youtu.be should never be expaned because of video pattern matcher
         if((input.startsWith("https") && input.contains("youtu.be/")) || (input.startsWith("https") && input.contains("spotify.link/")) ){
 
-            input = this.expandURL(input);
+            Main.debug("Expanding URL: " + input + " EXPANDED --> " + (input = this.expandURL(input)));
 
             if(error(e.getHook(), input))
                 return;
 
-            Main.debug("Expanded URL: " + input);
         }
 
 
@@ -73,7 +73,7 @@ public class LinkConverter extends SpotifyWorker{
             e.getHook().sendMessage("YouTube Playlist wird geladen und zur Wiedergabeliste hinzugefügt, dies kann einige Sekunden dauern: " + input).queue();
 
             this.loadYouTubePlaylist(input, e.getUser(), e.getChannel().asTextChannel(), musicManager);
-            // result i handeled in function
+            // result is handeled in function
         }
 
 
@@ -86,7 +86,6 @@ public class LinkConverter extends SpotifyWorker{
 
             musicManager.scheduler.queue(new MusicSong("ytsearch:" + song + " audio", e.getChannel().asTextChannel(), e.getUser().getName()), playAsFirst);
             e.getHook().sendMessage("Spotify Song zur Wiedergabeliste hinzugefügt: " + input).queue();
-            Main.debug("Queued Spotify Song: " + input);
         }
 
 
@@ -103,8 +102,6 @@ public class LinkConverter extends SpotifyWorker{
                 musicManager.scheduler.queue(new MusicSong("ytsearch:" + name + " audio", e.getChannel().asTextChannel(), e.getUser().getName()), false);
             }
             e.getChannel().sendMessage("Spotify Playlist wurde fertig geladen.").queue();
-            Main.debug("Queued Spotify List: " + input);
-
         }
 
         else{
@@ -182,7 +179,7 @@ public class LinkConverter extends SpotifyWorker{
 
 
     public void loadSimilarSongs(String name, TextChannel channel){
-        name = repairTextSearch(name);
+        Main.debug("Loading Similar Songs: " + name + " REPAIRED --> " + (name = repairTextSearch(name)));
         List<String> l = loadSpotifyRecommended(name);
         TrackScheduler scheduler = Bot.instance.getPM().getGuildMusicManager(channel.getGuild()).scheduler;
         if(error(channel, l.get(0))) {
