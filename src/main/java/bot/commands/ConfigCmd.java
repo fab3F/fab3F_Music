@@ -112,7 +112,8 @@ public class ConfigCmd implements ServerCommand{
     public Option[] getOptions() {
         return new Option[]{
                 new Option(OptionType.STRING, "defaultautoplaysong", "Standardmäßger Song für Autoplay", false),
-                new Option(OptionType.INTEGER, "defaultvolume", "Standardmäßige Lautstärke des Bots (Wert zwischen 0 und 100)", false)
+                new Option(OptionType.INTEGER, "defaultvolume", "Standardmäßige Lautstärke des Bots (Wert zwischen 0 und 100)", false),
+                new Option(OptionType.INTEGER, "autoplaypopularity", "Mindeste Beliebtheit von Autoplay Songs (Wert zwischen 0 und 100)", false)
         };
     }
 }

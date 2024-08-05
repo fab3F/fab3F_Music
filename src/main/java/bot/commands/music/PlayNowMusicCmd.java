@@ -44,9 +44,14 @@ public class PlayNowMusicCmd implements ServerCommand {
 
         GuildMusicManager manager = Bot.instance.getPM().getGuildMusicManager(g);
 
+        /*
+
+
         if(manager.scheduler.isAutoplay && manager.scheduler.getLastPlaying().user.equals(Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0))){
             manager.clearQueue();
         }
+
+        */
 
         Bot.instance.getPM().linkConverter.addUrl(link, e, true);
 

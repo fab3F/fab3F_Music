@@ -1,6 +1,7 @@
 package bot.music;
 
 import bot.Bot;
+import bot.commands.music.QueueMusicCmd;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -10,6 +11,7 @@ import general.Main;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -18,6 +20,7 @@ public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
     private final ConcurrentLinkedDeque<MusicSong> queue = new ConcurrentLinkedDeque<>();
     private final List<String> autoPlayedSongs = new ArrayList<>();
+    public final LinkedList<String> requestedSongs = new LinkedList<>();
     private MusicSong lastPlayingSong;
     private boolean isRepeat = false;
     public boolean isAutoplay = false;
@@ -94,21 +97,15 @@ public class TrackScheduler extends AudioEventAdapter {
 
 
     public void trackStartedPlaying(MusicSong song){
-        int durationInSeconds = (int) song.getTrack().getInfo().length / 1000;
-        int hours = durationInSeconds / 3600;
-        int minutes = (durationInSeconds % 3600) / 60;
-        int seconds = durationInSeconds % 60;
-        String length;
-        if (hours > 0) {
-            length = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-        } else {
-            length = String.format("%02d:%02d", minutes, seconds);
-        }
-
-        song.channel.sendMessage("Jetzt spielt: **`" + song.getTrack().getInfo().title + "`** von **`" + song.getTrack().getInfo().author + "`** (" + length + ")").queue();
+        song.channel.sendMessage("Jetzt spielt: **`" + song.getTrack().getInfo().title + "`** von **`" + song.getTrack().getInfo().author + "`** [" + QueueMusicCmd.calcDuration((int)song.getTrack().getInfo().length) + "]").queue();
         this.lastPlayingSong = song;
         if(song.user.equals(Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0))){
             this.autoPlayedSongs.add(song.getTrack().getInfo().title);
+        } else {
+            while(this.requestedSongs.size() >= 4){
+                this.requestedSongs.removeFirst();
+            }
+            this.requestedSongs.addLast(song.getTrack().getInfo().title);
         }
     }
 
@@ -168,7 +165,16 @@ public class TrackScheduler extends AudioEventAdapter {
             if(this.lastPlayingSong == null){
                 Bot.instance.getPM().linkConverter.loadSimilarSongs(Bot.instance.configWorker.getServerConfig(this.lastUsedTextChannel.getGuild().getId(), "defaultautoplaysong").get(0), this.lastUsedTextChannel);
             }else{
-                Bot.instance.getPM().linkConverter.loadSimilarSongs(lastPlayingSong.getTrack().getInfo().title, lastPlayingSong.channel);
+                StringBuilder s = new StringBuilder();
+                if(this.requestedSongs.isEmpty()){
+                    s.append(Bot.instance.configWorker.getServerConfig(this.lastUsedTextChannel.getGuild().getId(), "defaultautoplaysong").get(0));
+                }else{
+                    for(String str : this.requestedSongs){
+                        s.append(str).append("&.&.&");
+                    }
+                    s.append(this.lastPlayingSong.getTrack().getInfo().title);
+                }
+                Bot.instance.getPM().linkConverter.loadSimilarSongs(s.toString(), lastPlayingSong.channel);
             }
             searchingForAutoplay = false;
             loadNextFewSongs();

@@ -180,7 +180,13 @@ public class LinkConverter extends SpotifyWorker{
 
     public void loadSimilarSongs(String name, TextChannel channel){
         Main.debug("Loading Similar Songs: " + name + " REPAIRED --> " + (name = repairTextSearch(name)));
-        List<String> l = loadSpotifyRecommended(name);
+        int popularity;
+        try{
+            popularity = Integer.parseInt(Bot.instance.configWorker.getServerConfig(channel.getGuild().getId(), "autoplaypopularity").get(0));
+        }catch (NumberFormatException ex){
+            popularity = 35;
+        }
+        List<String> l = loadSpotifyRecommended(name, popularity);
         TrackScheduler scheduler = Bot.instance.getPM().getGuildMusicManager(channel.getGuild()).scheduler;
         if(error(channel, l.get(0))) {
             if (scheduler.isAutoplay) {

@@ -16,7 +16,7 @@ public class GuildMusicManager implements Runnable {
     private final Guild guild;
     private int volume;
     private final EqualizerFactory equalizer;
-    private static final float[] BASS_BOOST = {0.2f, 0.15f, 0.1f, 0.05f, 0.0f, -0.05f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f};
+    private static final float[] BASS_BOOST = {1f, 1f, 1f};
 
     public AudioPlayer audioPlayer;
     public TrackScheduler scheduler;
@@ -84,7 +84,6 @@ public class GuildMusicManager implements Runnable {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ignored) {}
-
 
             if(this.scheduler != null){
                 this.scheduler.loadNextFewSongs();

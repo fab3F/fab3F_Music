@@ -23,7 +23,7 @@ public class RepeatMusicCmd implements ServerCommand {
         musicManager.scheduler.changeRepeat();
 
         if(musicManager.scheduler.isRepeat())
-            e.reply("Dieser Song wird nun wiederholt.").queue();
+            e.reply("Dieser Song wird nun wiederholt. Zum Stoppen verwende `/repeat` nochmal.").queue();
         else
             e.reply("Dieser Song wird nun nicht mehr wiederholt.").queue();
 

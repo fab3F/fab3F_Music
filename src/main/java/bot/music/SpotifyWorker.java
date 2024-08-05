@@ -107,22 +107,25 @@ public class SpotifyWorker {
 
     }
 
-    protected ArrayList<String> loadSpotifyRecommended(String name){
+    protected ArrayList<String> loadSpotifyRecommended(String name, int popularity){
         ArrayList<String> a = new ArrayList<>(1);
         if(!initializedSpotify()){
             a.add(ERROR_PREFIX + "ERROR 40: Cannot connect with Spotify API.");
             return a;
         }
-        SearchTracksRequest request = spotifyApi.searchTracks(name).build();
-        Track track;
-        try{
-            track = request.execute().getItems()[0];
-        }catch (IOException | ParseException | SpotifyWebApiException e){
-            a.add(ERROR_PREFIX + "ERROR 42: Spotify search track request was not successful.");
-            return a;
+        StringBuilder tracks = new StringBuilder();
+        for(String song : name.split("&.&.&")) {
+            SearchTracksRequest request = spotifyApi.searchTracks(song).build();
+            Track track;
+            try {
+                track = request.execute().getItems()[0];
+            } catch (IOException | ParseException | SpotifyWebApiException e) {
+                a.add(ERROR_PREFIX + "ERROR 42: Spotify search track request was not successful.");
+                return a;
+            }
+            tracks.append(track.getId()).append(",");
         }
-        String artistIds = track.getArtists()[0].getId() + (track.getArtists().length > 1 ? "," + track.getArtists()[1].getId() : "");
-        return getRecommended(track.getId(), artistIds);
+        return getRecommended(tracks.toString(), popularity);
     }
 
     private String getSpotifyArtistAndName(String trackId) {
@@ -136,11 +139,13 @@ public class SpotifyWorker {
         return track.getName() + " " + track.getArtists()[0].getName();
     }
 
-    private ArrayList<String> getRecommended(String trackId, String artistIds){
+    private ArrayList<String> getRecommended(String tracks, int popularity){
+        //String artistIds = track.getArtists()[0].getId() + (track.getArtists().length > 1 ? "," + track.getArtists()[1].getId() : "");
         ArrayList<String> list = new ArrayList<>();
         GetRecommendationsRequest request = spotifyApi.getRecommendations()
-                .seed_tracks(trackId)
-                .seed_artists(artistIds)
+                .seed_tracks(tracks)
+                //.seed_artists(artistIds)
+                .min_popularity(popularity)
                 .market(CountryCode.DE)
                 .limit(30).build();
         Recommendations re;
@@ -150,8 +155,8 @@ public class SpotifyWorker {
             list.add(ERROR_PREFIX + "ERROR 43: Spotify recommended track request was not successful.");
             return list;
         }
-        for(Track track : re.getTracks()){
-            list.add(track.getName() + " " + track.getArtists()[0].getName());
+        for(Track tr : re.getTracks()){
+            list.add(tr.getName() + " " + tr.getArtists()[0].getName());
         }
         if(list.isEmpty()){
             list.add(ERROR_PREFIX + "ERROR 44: Spotify recommended track request was not successful.");

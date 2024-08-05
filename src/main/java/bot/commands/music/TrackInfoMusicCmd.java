@@ -32,35 +32,34 @@ public class TrackInfoMusicCmd implements ServerCommand {
 
 
         EmbedBuilder eb = new EmbedBuilder();
-        eb.setAuthor("Informationen zu");
-        eb.setColor(Color.MAGENTA);
-        eb.setTitle("**`" + last.getTrack().getInfo().title + "`**");
-        eb.setDescription("Bestimmt ein wunderbarer Song.");
-        if(musicManager.scheduler.isRepeat()){
-            eb.setDescription("Bestimmt ein wunderbarer Song.\n" +
-                    "**Information:** Dieser Song wird wiederholt.");
-        }
-        eb.addField("Uploader", "**`" + last.getTrack().getInfo().author + "`**", false);
-
-        int durationInSeconds = (int) last.getTrack().getInfo().length / 1000;
-        int hours = durationInSeconds / 3600;
-        int minutes = (durationInSeconds % 3600) / 60;
-        int seconds = durationInSeconds % 60;
-        String length;
-        if (hours > 0) {
-            length = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-        } else {
-            length = String.format("%02d:%02d", minutes, seconds);
-        }
-
-        eb.addField("Länge", "**`" + length + "`**", false);
         String uri = last.getTrack().getInfo().uri;
-        eb.addField("URL", uri, false);
         Matcher matcher = LinkConverter.YOUTUBE_VIDEO_ID_PATTERN.matcher(uri);
+
+        String description;
+        if(last.user.equalsIgnoreCase(Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0))){
+            description = "Dieser Song wurde von Spotify Autoplay ausgewählt.";
+        }else{
+            try {
+                description = "Hinzugefügt von: " + e.getGuild().getMembersByName(last.user, true).get(0).getAsMention();
+            } catch (Exception ex){
+                description = "Bestimmt ein wunderbarer Song";
+            }
+        }
+        if(musicManager.scheduler.isRepeat()){
+            description += "\n**Information:** Dieser Song wird wiederholt.";
+        }
+
+        String length = QueueMusicCmd.calcDuration((int) last.getTrack().getInfo().length);
+
+        eb.setAuthor("Jetzt spielt");
+        eb.setColor(Color.MAGENTA);
+        eb.setTitle("**" + last.getTrack().getInfo().title + "**", uri);
+        eb.setDescription(description);
+        eb.addField("Uploader", "**`" + last.getTrack().getInfo().author + "`**", true);
+        eb.addField("Länge", "**`" + length + "`**", true);
         if(matcher.find()){
             eb.setThumbnail("https://img.youtube.com/vi/" + matcher.group(1) + "/0.jpg");
         }
-        eb.addField("Hinzugefügt von", "**`" + last.user + "`**", false);
         eb.setFooter("Befehl '/trackinfo'");
         eb.setTimestamp(new Date().toInstant());
 
@@ -92,6 +91,6 @@ public class TrackInfoMusicCmd implements ServerCommand {
 
     @Override
     public String getDescription() {
-        return "Informationen zu dem Lied, was gerade abgespielt wird";
+        return "Informationen zu dem Lied, welches gerade abgespielt wird";
     }
 }

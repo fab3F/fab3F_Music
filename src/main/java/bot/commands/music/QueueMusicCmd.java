@@ -2,6 +2,8 @@ package bot.commands.music;
 
 import bot.Bot;
 import bot.commands.ServerCommand;
+import bot.music.GuildMusicManager;
+import bot.music.LinkConverter;
 import bot.music.MusicSong;
 import bot.music.VoiceStates;
 import bot.permissionsystem.BotPermission;
@@ -11,6 +13,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import java.awt.*;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
 
 public class QueueMusicCmd implements ServerCommand {
     @Override
@@ -18,16 +21,9 @@ public class QueueMusicCmd implements ServerCommand {
         if(!VoiceStates.inSameVoiceChannel(e.getGuild().getSelfMember(), e.getMember()))
             return false;
 
+        GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
 
-        List<MusicSong> queue = Bot.instance.getPM().getGuildMusicManager(e.getGuild()).scheduler.getQueue();
-        int remaining = queue.size();
-        if(remaining > 10){
-            queue = queue.subList(0, 10);
-            remaining -= 10;
-        }else{
-            remaining = -1;
-        }
-
+        List<MusicSong> queue = musicManager.scheduler.getQueue();
         if(queue.isEmpty()){
             e.reply("Die Wiedergabeliste ist leer.").setEphemeral(true).queue();
             return true;
@@ -35,30 +31,63 @@ public class QueueMusicCmd implements ServerCommand {
 
         e.deferReply().queue();
 
+        int size = queue.size();
+
+        MusicSong last = musicManager.scheduler.getLastPlaying();
+        if(last == null)
+            return false;
+
+
         EmbedBuilder eb = new EmbedBuilder();
-        eb.setColor(Color.ORANGE);
-        eb.setTitle("**Wiedergabeliste**");
-        eb.setDescription("Das sind die nächsten Songs:");
+        String uri = last.getTrack().getInfo().uri;
+        Matcher matcher = LinkConverter.YOUTUBE_VIDEO_ID_PATTERN.matcher(uri);
+
+        String description;
+        if(last.user.equalsIgnoreCase(Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0))){
+            description = "Von Spotify Autoplay ausgewählt";
+        }else{
+            try {
+                description = "Hinzugefügt von: " + e.getGuild().getMembersByName(last.user, true).get(0).getAsMention();
+            } catch (Exception ex){
+                description = "Bestimmt ein wunderbarer Song";
+            }
+        }
+        description += "   `[" + calcDuration((int)last.getTrack().getInfo().length) + "]`";
+        if(musicManager.scheduler.isRepeat()){
+            description += "\n**Information:** Dieser Song wird wiederholt.";
+        }
+
+        eb.setAuthor("Jetzt spielt");
+        eb.setColor(Color.MAGENTA);
+        eb.setTitle("**" + last.getTrack().getInfo().title + "**", uri);
+        eb.setDescription(description);
+        if(matcher.find()){
+            eb.setThumbnail("https://img.youtube.com/vi/" + matcher.group(1) + "/0.jpg");
+        }
+
+        String title = size > 10 ? "Das sind die nächsten `10` von insgesamt `" + size + "` Songs:" : "Das sind die nächsten `" + size + "` Songs:";
+        StringBuilder sb = new StringBuilder();
         int i = 1;
-        for(MusicSong song : queue){
+        for(MusicSong song : queue.subList(0, Math.min(10, size))){
             String url;
             if(song.isLoaded){
-                url = "**" + song.getTrack().getInfo().title + "**";
+                String t = song.getTrack().getInfo().title.replaceAll("\\[", "").replaceAll("]", "");
+                if (t.length() > 45) t = t.substring(0, 42) + "...";
+                url = "[" + t + "](" + song.getTrack().getInfo().uri + ") `[" + calcDuration((int)song.getTrack().getInfo().length) + "]`";
             }else{
-                url = (song.url.startsWith("ytsearch:") ? general.SyIO.replaceLast(song.url.replaceFirst("ytsearch:", ""), " audio", "") : song.url) + " (Noch nicht geladen)";
+                url = (song.url.startsWith("ytsearch:") ? general.SyIO.replaceLast(song.url.replaceFirst("ytsearch:", ""), " audio", "") : song.url);
             }
-            eb.addField("#" + i + " " + url, "Hinzugefügt von `" + song.user + "`", false);
+            sb.append("`").append(i).append(".` ").append(url).append("\n");
             i++;
+        }
 
-        }
-        if(remaining > 0){
-            eb.addField("Anzahl an weiteren Songs in der Liste: **" + remaining + "**", "", false);
-        }
+        eb.addField(title, sb.toString(), false);
+
+
         eb.setFooter("Befehl '/queue'");
         eb.setTimestamp(new Date().toInstant());
 
         e.getHook().sendMessageEmbeds(eb.build()).queue();
-
 
         return true;
     }
@@ -88,4 +117,21 @@ public class QueueMusicCmd implements ServerCommand {
     public String getDescription() {
         return "Erhalte Informationen zur aktuellen Wiedergabeliste";
     }
+
+
+    public static String calcDuration(int millis){
+        int durationInSeconds = millis / 1000;
+        int hours = durationInSeconds / 3600;
+        int minutes = (durationInSeconds % 3600) / 60;
+        int seconds = durationInSeconds % 60;
+        String length;
+        if (hours > 0) {
+            length = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        } else {
+            length = String.format("%02d:%02d", minutes, seconds);
+        }
+        return length;
+    }
+
+
 }

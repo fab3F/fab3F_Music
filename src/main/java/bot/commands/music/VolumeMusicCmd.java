@@ -15,20 +15,17 @@ public class VolumeMusicCmd implements ServerCommand {
             return false;
 
         GuildMusicManager manager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
-        int volume = manager.getVolume();
 
         if(e.getOption("value") == null){
-            e.reply("Die aktuelle Lautstärke beträgt " + volume + "%.").queue();
+            e.reply("Die aktuelle Lautstärke beträgt " + manager.getVolume() + "%.").queue();
             return true;
         }
 
-        int newVolume = e.getOption("value").getAsInt();
-        newVolume = Math.min(newVolume, 100);
-        newVolume = Math.max(newVolume, 0);
+        int newVolume = Math.min(Math.max(e.getOption("value").getAsInt(), 0), 100);
 
         manager.setVolume(newVolume);
 
-        e.reply("Die Lautstärke wurde von " + volume + "% von " + newVolume + "% geändert.").queue();
+        e.reply("Die Lautstärke wurde zu" + newVolume + "% geändert. Max: 100%").queue();
         return true;
     }
 

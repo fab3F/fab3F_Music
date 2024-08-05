@@ -26,7 +26,7 @@ public class BassBoostMusicCmd implements ServerCommand {
         GuildMusicManager manager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
 
         int boost = e.getOption("value").getAsInt();
-        boost = Math.min(boost, 200);
+        boost = Math.min(boost, 100);
         boost = Math.max(boost, 0);
 
         manager.setBassBost((float) boost);
@@ -59,11 +59,11 @@ public class BassBoostMusicCmd implements ServerCommand {
 
     @Override
     public String getDescription() {
-        return "Booste den Bass des Bots (experimentell)";
+        return "Booste den Bass des Bots (experimentell). Standardwert: 0%";
     }
 
     @Override
     public Option[] getOptions() {
-        return new ServerCommand.Option[]{new Option(OptionType.STRING, "value", "Wert zwischen 0 und 200 (Prozent)", false)};
+        return new ServerCommand.Option[]{new Option(OptionType.STRING, "value", "Wert zwischen 0 und 100 (Prozent)", false)};
     }
 }
