@@ -186,7 +186,7 @@ public class LinkConverter extends SpotifyWorker{
         }catch (NumberFormatException ex){
             popularity = 35;
         }
-        List<String> l = loadSpotifyRecommended(name, popularity);
+        List<String> l = loadSpotifyRecommended(name, Math.min(100, Math.max(0, popularity)));
         TrackScheduler scheduler = Bot.instance.getPM().getGuildMusicManager(channel.getGuild()).scheduler;
         if(error(channel, l.get(0))) {
             if (scheduler.isAutoplay) {

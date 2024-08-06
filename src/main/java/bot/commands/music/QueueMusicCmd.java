@@ -43,19 +43,15 @@ public class QueueMusicCmd implements ServerCommand {
         Matcher matcher = LinkConverter.YOUTUBE_VIDEO_ID_PATTERN.matcher(uri);
 
         String description;
-        if(last.user.equalsIgnoreCase(Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0))){
-            description = "Von Spotify Autoplay ausgewählt";
-        }else{
-            try {
-                description = "Hinzugefügt von: " + e.getGuild().getMembersByName(last.user, true).get(0).getAsMention();
-            } catch (Exception ex){
-                description = "Bestimmt ein wunderbarer Song";
-            }
+        try {
+            description = "Hinzugefügt von: " + e.getGuild().getMembersByName(last.user, true).get(0).getAsMention();
+        } catch (Exception ex){
+            description = "Bestimmt ein wunderbarer Song";
         }
-        description += "   `[" + calcDuration((int)last.getTrack().getInfo().length) + "]`";
         if(musicManager.scheduler.isRepeat()){
             description += "\n**Information:** Dieser Song wird wiederholt.";
         }
+
 
         eb.setAuthor("Jetzt spielt");
         eb.setColor(Color.MAGENTA);
@@ -65,7 +61,9 @@ public class QueueMusicCmd implements ServerCommand {
             eb.setThumbnail("https://img.youtube.com/vi/" + matcher.group(1) + "/0.jpg");
         }
 
-        String title = size > 10 ? "Das sind die nächsten `10` von insgesamt `" + size + "` Songs:" : "Das sind die nächsten `" + size + "` Songs:";
+        int length = 0;
+        int loaded = 0;
+
         StringBuilder sb = new StringBuilder();
         int i = 1;
         for(MusicSong song : queue.subList(0, Math.min(10, size))){
@@ -73,7 +71,9 @@ public class QueueMusicCmd implements ServerCommand {
             if(song.isLoaded){
                 String t = song.getTrack().getInfo().title.replaceAll("\\[", "").replaceAll("]", "");
                 if (t.length() > 45) t = t.substring(0, 42) + "...";
+                length += (int) song.getTrack().getInfo().length;
                 url = "[" + t + "](" + song.getTrack().getInfo().uri + ") `[" + calcDuration((int)song.getTrack().getInfo().length) + "]`";
+                loaded++;
             }else{
                 url = (song.url.startsWith("ytsearch:") ? general.SyIO.replaceLast(song.url.replaceFirst("ytsearch:", ""), " audio", "") : song.url);
             }
@@ -81,7 +81,12 @@ public class QueueMusicCmd implements ServerCommand {
             i++;
         }
 
-        eb.addField(title, sb.toString(), false);
+        eb.addField("Als nächstes:", sb.toString(), false);
+
+        length += (size - loaded) * 180000;
+
+        eb.addField("Gesamte Warteschlange", "`" + size + " Songs`", true);
+        eb.addField("Gesamte Dauer", "`" + calcDuration(length) + "`", true);
 
 
         eb.setFooter("Befehl '/queue'");

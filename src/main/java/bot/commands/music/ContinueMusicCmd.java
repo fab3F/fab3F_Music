@@ -17,7 +17,7 @@ public class ContinueMusicCmd implements ServerCommand {
         GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
 
         if(!musicManager.audioPlayer.isPaused()){
-            e.reply("Die Wiedergabe wird bereits fortgesetzt. Benutze ```/pause``` um die Wiedergabe zu pausieren oder benutze ```/skip``` um einen Song zu überspringen.").queue();
+            e.reply("Die Wiedergabe wird bereits fortgesetzt. Benutze `/pause` um die Wiedergabe zu pausieren oder benutze `/skip` um einen Song zu überspringen.").queue();
             return true;
         }
 

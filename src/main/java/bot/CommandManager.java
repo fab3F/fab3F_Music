@@ -102,14 +102,14 @@ public class CommandManager {
     }
 
     private String getUsage(ServerCommand cmd, String cmdName){
-        StringBuilder usage = new StringBuilder("Benutze ```/");
+        StringBuilder usage = new StringBuilder("Benutze `/");
         usage.append(cmd.cmdName().replace("{cmdName}", cmdName));
         if(cmd.getOptions() != null){
             for(ServerCommand.Option option : cmd.getOptions()){
                 usage.append(" <").append(option.name).append(">");
             }
         }
-        usage.append("```");
+        usage.append("`");
         String s;
         if((s = cmd.getFurtherUsage()) != null){
             usage.append("\n").append(s);
