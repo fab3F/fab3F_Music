@@ -22,7 +22,7 @@ public class SpotifyWorker {
     private final String spotifyClientId;
     private final String spotifyClientSecret;
     private SpotifyApi spotifyApi;
-    private long expiresIn;
+    private long tokenExpires;
 
     private final String ERROR_PREFIX = LinkConverter.ERROR_PREFIX;
 
@@ -30,7 +30,7 @@ public class SpotifyWorker {
     protected SpotifyWorker(String spotifyClientId, String spotifyClienSecret){
         this.spotifyClientId = spotifyClientId;
         this.spotifyClientSecret = spotifyClienSecret;
-        this.expiresIn = System.currentTimeMillis() - 1000;
+        this.tokenExpires = System.currentTimeMillis() - 999999999;
     }
 
     protected void close(){
@@ -42,9 +42,7 @@ public class SpotifyWorker {
             this.spotifyApi = new SpotifyApi.Builder().setClientId(this.spotifyClientId).setClientSecret(this.spotifyClientSecret).build();
         }
 
-        if(expiresIn - 10 * 1000 > System.currentTimeMillis()){
-            return true;
-        }else{
+        if (tokenExpires <= System.currentTimeMillis()) {
             ClientCredentialsRequest request = this.spotifyApi.clientCredentials().build();
             ClientCredentials creds;
             try {
@@ -54,7 +52,7 @@ public class SpotifyWorker {
                 return false;
             }
             spotifyApi.setAccessToken(creds.getAccessToken());
-            this.expiresIn = System.currentTimeMillis() + (creds.getExpiresIn() * 1000);
+            this.tokenExpires = System.currentTimeMillis() + (creds.getExpiresIn() * 1000) - 60000;
         }
         return true;
     }

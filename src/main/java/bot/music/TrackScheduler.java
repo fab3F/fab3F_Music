@@ -184,6 +184,8 @@ public class TrackScheduler extends AudioEventAdapter {
     @Override
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
         Main.debug("Track exception: " + exception.getMessage());
+        this.lastUsedTextChannel.sendMessage("Beim Spielen eines Songs ist ein Fehler aufgetreten: **" + track.getInfo().title + "**\n" +
+                "Fehlermeldung: " + exception).queue();
     }
 
     @Override

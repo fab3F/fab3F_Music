@@ -18,7 +18,6 @@ public class TrackLoader implements Runnable{
     private final AudioPlayerManager audioPlayerManager;
     private final LinkedBlockingQueue<MusicSong> toLoad;
 
-
     TrackLoader(AudioPlayerManager manager) {
         this.name = "TrackLoader";
         Thread thread = new Thread(this, name);
@@ -32,7 +31,6 @@ public class TrackLoader implements Runnable{
     @Override
     public void run() {
         while (!exitThread) {
-
 
             if(toLoad.isEmpty()){
                 try {

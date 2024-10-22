@@ -20,10 +20,19 @@ public class ConfigWorker {
     }
 
     public List<String> getBotConfig(String name){
+        name = name.toLowerCase(Locale.ROOT);
         return getConfig(new File(configPath + filesep + "bot.config"), name.toLowerCase(Locale.ROOT));
     }
 
+    public boolean setBotConfig(String name, String value){
+        name = name.toLowerCase(Locale.ROOT);
+        List<String> config = new ArrayList<>();
+        config.add(value);
+        return updateConfig(new File(configPath + filesep + "bot.config"), name, config);
+    }
+
     public List<String> getServerConfig(String guildId, String name){
+        name = name.toLowerCase(Locale.ROOT);
         if(createConfigForServer(guildId)){
             return getConfig(new File(configPath + filesep + "server" + filesep + guildId + ".config"), name.toLowerCase(Locale.ROOT));
         }
@@ -37,7 +46,7 @@ public class ConfigWorker {
         }
         List<String> config = getServerConfig(guildId, name);
         config.add(value);
-        return updateConfig(guildId, name, config);
+        return updateServerConfig(guildId, name, config);
     }
 
     public boolean removeServerConfig(String guildId, String name, String value){
@@ -47,7 +56,7 @@ public class ConfigWorker {
         }
         List<String> config = getServerConfig(guildId, name);
         if(config.remove(value)){
-            return updateConfig(guildId, name, config);
+            return updateServerConfig(guildId, name, config);
         }
         return true;
     }
@@ -57,7 +66,7 @@ public class ConfigWorker {
         if(!createConfigForServer(guildId)){
             return false;
         }
-        return updateConfig(guildId, name, new ArrayList<>());
+        return updateServerConfig(guildId, name, new ArrayList<>());
     }
 
     // if server has no config file (new server) its created
@@ -112,10 +121,13 @@ public class ConfigWorker {
         return l;
     }
 
+    private boolean updateServerConfig(String guildId, String name, List<String> values){
+        return updateConfig(new File(configPath + filesep + "server" + filesep + guildId+".config"), name, values);
+    }
+
     // removes all old and adds new values
-    private boolean updateConfig(String guildId, String name, List<String> values){
+    private boolean updateConfig(File file, String name, List<String> values){
         List<String> lines = new ArrayList<>();
-        File file = new File(configPath + filesep + "server" + filesep + guildId+".config");
         Scanner config;
         try {
             config = new Scanner(file);

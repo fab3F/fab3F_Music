@@ -18,7 +18,9 @@ public class PlayerManager {
     public LinkConverter linkConverter;
 
     public PlayerManager() {
-        audioPlayerManager.registerSourceManager(new YoutubeAudioSourceManager(true));
+        YoutubeAudioSourceManager source = new YoutubeAudioSourceManager(true);
+        source.useOauth2(new Oauth2Handler().getRefreshToken(), true);
+        audioPlayerManager.registerSourceManager(source);
         AudioSourceManagers.registerRemoteSources(audioPlayerManager);
         AudioSourceManagers.registerLocalSource(audioPlayerManager);
         this.trackLoader = new TrackLoader(audioPlayerManager);

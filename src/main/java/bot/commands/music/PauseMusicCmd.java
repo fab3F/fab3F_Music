@@ -21,13 +21,13 @@ public class PauseMusicCmd implements ServerCommand {
             return false;
 
         if(musicManager.audioPlayer.isPaused()){
-            e.reply("Die Wiedergabe ist bereits pausiert. Benutze `/continue` um die Wiedergabe fortzusetzen.").queue();
+            e.reply("Die Wiedergabe ist bereits pausiert. Benutze `/resumei` um die Wiedergabe fortzusetzen.").queue();
             return true;
         }
 
         musicManager.audioPlayer.setPaused(true);
 
-        e.reply("Wiedergabe pausiert.").queue();
+        e.reply("Wiedergabe pausiert. Benutze `/resume` um die Wiedergabe fortzusetzen.").queue();
 
         return true;
     }
