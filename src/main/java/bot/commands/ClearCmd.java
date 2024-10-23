@@ -53,7 +53,7 @@ public class ClearCmd implements ServerCommand{
 
     @Override
     public BotPermission getBotPermission() {
-        return BotPermission.BOT_ADMIN;
+        return BotPermission.BOT_TEXT;
     }
 
     @Override

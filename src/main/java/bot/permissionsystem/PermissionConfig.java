@@ -10,6 +10,8 @@ public class PermissionConfig {
     public static final Map<BotPermission, Set<Permission>> PERMISSIONS_MAP;
     private static final Permission[] standardPermissions = {
             Permission.VIEW_CHANNEL,
+            Permission.MANAGE_SERVER,
+            Permission.MESSAGE_MANAGE,
             Permission.MESSAGE_SEND,
             Permission.MESSAGE_HISTORY,
             Permission.MESSAGE_ADD_REACTION,

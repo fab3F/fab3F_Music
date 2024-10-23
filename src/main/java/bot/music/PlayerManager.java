@@ -8,6 +8,7 @@ import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class PlayerManager {
@@ -45,11 +46,14 @@ public class PlayerManager {
     }
 
     public void closeEverything(){
-        for(Map.Entry<String, GuildMusicManager> entry : this.guildMusicManagers.entrySet()){
-            GuildMusicManager gm = this.guildMusicManagers.remove(entry.getKey());
-            if(gm != null){
+        Iterator<Map.Entry<String, GuildMusicManager>> iterator = this.guildMusicManagers.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, GuildMusicManager> entry = iterator.next();
+            GuildMusicManager gm = entry.getValue();
+            if (gm != null) {
                 gm.stopManager();
             }
+            iterator.remove();
         }
 
         this.guildMusicManagers.clear();
