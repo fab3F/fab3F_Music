@@ -11,26 +11,26 @@ import general.Main;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.stream.Collectors;
 
 public class TrackScheduler extends AudioEventAdapter {
 
     private final AudioPlayer player;
     private final ConcurrentLinkedDeque<MusicSong> queue = new ConcurrentLinkedDeque<>();
-    private final List<String> autoPlayedSongs = new ArrayList<>();
-    public final LinkedList<String> requestedSongs = new LinkedList<>();
-    private MusicSong lastPlayingSong;
+    private final List<MusicSong> lastPlayedSongs = new ArrayList<>();
     private boolean isRepeat = false;
     public boolean isAutoplay = false;
     private boolean searchingForAutoplay = false;
-    public TextChannel lastUsedTextChannel;
     private final int preloaded = Integer.parseInt(Bot.instance.configWorker.getBotConfig("preloadedSongs").get(0));
 
 
     public TrackScheduler(AudioPlayer player) {
         this.player = player;
+        this.lastPlayedSongs.add(new MusicSong("", null, ""));
     }
 
     @Override
@@ -46,7 +46,6 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     public void queue(MusicSong song, boolean queueAsFirst) {
-        this.lastUsedTextChannel = song.channel;
         boolean songInstantlyStartedPlaying = false;
         if(song.isLoaded && this.player.getPlayingTrack() == null && this.queue.isEmpty()){
             songInstantlyStartedPlaying = player.startTrack(song.getTrack(), true);
@@ -72,7 +71,6 @@ public class TrackScheduler extends AudioEventAdapter {
         if(nextSong != null && !nextSong.isLoaded){
             return;
         }
-
         if(nextSong == null){
             if(skipping){
                 this.isRepeat = false;
@@ -83,9 +81,10 @@ public class TrackScheduler extends AudioEventAdapter {
                 startAutoPlay();
             }
             return;
-        } else if(this.autoPlayedSongs.contains(nextSong.getTrack().getInfo().title) && isAutoplay && nextSong.user.equals(Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0))){
+        } else if(this.lastPlayedSongs.stream().map(song -> song.getTrack().getInfo().title).toList().contains(nextSong.getTrack().getInfo().title) && nextSong.user.equals(Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0))){
             Main.debug("Skipped Autoplay duplicate: " + nextSong.getTrack().getInfo().title);
             nextSong(skipping);
+            return;
         }
 
         this.isRepeat = false;
@@ -98,14 +97,17 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public void trackStartedPlaying(MusicSong song){
         song.channel.sendMessage("Jetzt spielt: **`" + song.getTrack().getInfo().title + "`** von **`" + song.getTrack().getInfo().author + "`** [" + QueueMusicCmd.calcDuration((int)song.getTrack().getInfo().length) + "]").queue();
-        this.lastPlayingSong = song;
-        if(song.user.equals(Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0))){
-            this.autoPlayedSongs.add(song.getTrack().getInfo().title);
-        } else {
-            while(this.requestedSongs.size() >= 4){
-                this.requestedSongs.removeFirst();
-            }
-            this.requestedSongs.addLast(song.getTrack().getInfo().title);
+        this.lastPlayedSongs.add(song);
+
+        // Loundess normalization
+        List<String> l = Bot.instance.configWorker.getServerConfig(song.channel.getGuild().getId(), "volumenormalization");
+        if(!l.isEmpty() && l.get(0).equalsIgnoreCase("true")) {
+            int defaultvolume = Integer.parseInt(Bot.instance.configWorker.getServerConfig(song.channel.getGuild().getId(), "defaultvolume").get(0));
+            String id = song.getTrack().getInfo().uri.replaceAll("^(?:https?://)?(?:www\\.)?(?:youtube\\.com/.*v=|youtu\\.be/)([a-zA-Z0-9_-]{11}).*$", "$1");
+            double multiplier = LoudnessHandler.calculateVolumeMultiplierV2(id);
+            int volume = (int) (defaultvolume * multiplier);
+            this.player.setVolume(volume);
+            song.channel.sendMessage("New volume: " + volume).queue();
         }
     }
 
@@ -127,10 +129,10 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     public MusicSong getLastPlaying(){
-        if(this.lastPlayingSong == null){
+        if(this.lastPlayedSongs.isEmpty()){
             return null;
         } else {
-            return this.lastPlayingSong;
+            return this.lastPlayedSongs.get(lastPlayedSongs.size()-1);
         }
     }
 
@@ -153,7 +155,7 @@ public class TrackScheduler extends AudioEventAdapter {
     public boolean toogleAutoPlay(){
         this.isAutoplay = !isAutoplay;
         if(!isAutoplay){
-            this.autoPlayedSongs.clear();
+            this.lastPlayedSongs.clear();
         }
         return this.isAutoplay;
     }
@@ -162,19 +164,11 @@ public class TrackScheduler extends AudioEventAdapter {
         if(this.queue.isEmpty() && !searchingForAutoplay){
             searchingForAutoplay = true;
 
-            if(this.lastPlayingSong == null){
-                Bot.instance.getPM().linkConverter.loadSimilarSongs(Bot.instance.configWorker.getServerConfig(this.lastUsedTextChannel.getGuild().getId(), "defaultautoplaysong").get(0), this.lastUsedTextChannel);
+            if(this.lastPlayedSongs.get(lastPlayedSongs.size()-1).url.isEmpty()){
+                Bot.instance.getPM().linkConverter.loadSimilarSongs(Bot.instance.configWorker.getServerConfig(this.lastPlayedSongs.get(lastPlayedSongs.size()-1).channel.getGuild().getId(), "defaultautoplaysong").get(0), this.lastPlayedSongs.get(lastPlayedSongs.size()-1).channel);
             }else{
-                StringBuilder s = new StringBuilder();
-                if(this.requestedSongs.isEmpty()){
-                    s.append(Bot.instance.configWorker.getServerConfig(this.lastUsedTextChannel.getGuild().getId(), "defaultautoplaysong").get(0));
-                }else{
-                    for(String str : this.requestedSongs){
-                        s.append(str).append("&.&.&");
-                    }
-                    s.append(this.lastPlayingSong.getTrack().getInfo().title);
-                }
-                Bot.instance.getPM().linkConverter.loadSimilarSongs(s.toString(), lastPlayingSong.channel);
+                String vId = this.lastPlayedSongs.get(lastPlayedSongs.size()-1).getTrack().getInfo().uri.replaceAll("^(?:https?://)?(?:www\\.)?(?:youtube\\.com/.*v=|youtu\\.be/)([a-zA-Z0-9_-]{11}).*$", "$1");
+                Bot.instance.getPM().linkConverter.loadYouTubePlaylist("https://www.youtube.com/watch?v=" + vId + "&list=RD" + vId, Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0), this.lastPlayedSongs.get(lastPlayedSongs.size()-1).channel, Bot.instance.getPM().getGuildMusicManager(this.lastPlayedSongs.get(lastPlayedSongs.size()-1).channel.getGuild()), true);
             }
             searchingForAutoplay = false;
             loadNextFewSongs();
@@ -184,7 +178,7 @@ public class TrackScheduler extends AudioEventAdapter {
     @Override
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
         Main.debug("Track exception: " + exception.getMessage());
-        this.lastUsedTextChannel.sendMessage("Beim Spielen eines Songs ist ein Fehler aufgetreten: **" + track.getInfo().title + "**\n" +
+        this.lastPlayedSongs.get(lastPlayedSongs.size()-1).channel.sendMessage("Beim Spielen eines Songs ist ein Fehler aufgetreten: **" + track.getInfo().title + "**\n" +
                 "Fehlermeldung: " + exception).queue();
     }
 

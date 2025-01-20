@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 public class VolumeMusicCmd implements ServerCommand {
     @Override
     public boolean peformCommand(SlashCommandInteractionEvent e) {
+
         if(!VoiceStates.inSameVoiceChannel(e.getGuild().getSelfMember(), e.getMember()))
             return false;
 
@@ -25,7 +26,7 @@ public class VolumeMusicCmd implements ServerCommand {
 
         manager.setVolume(newVolume);
 
-        e.reply("Die Lautstärke wurde zu" + newVolume + "% geändert. Max: 100%").queue();
+        e.reply("Die Lautstärke wurde zu " + newVolume + "% geändert. Max: 100%").queue();
         return true;
     }
 

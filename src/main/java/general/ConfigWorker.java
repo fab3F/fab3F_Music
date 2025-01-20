@@ -139,6 +139,11 @@ public class ConfigWorker {
             lines.add(config.nextLine());
         }
         int index = lines.indexOf(name);
+        if(index<0){ // Creating new config entry if it doesn't exist
+            lines.add(name);
+            lines.add("  PLACEHOLDER ENTRY THAT GETS INSTANTLY REMOVED");
+        }
+        index = lines.indexOf(name);
         if(index<0)
             return false;
 
@@ -159,8 +164,10 @@ public class ConfigWorker {
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             for (String line : lines) {
-                writer.write(line);
-                writer.newLine();
+                if(!line.isEmpty()) {
+                    writer.write(line);
+                    writer.newLine();
+                }
             }
             return true;
         } catch (IOException e) {

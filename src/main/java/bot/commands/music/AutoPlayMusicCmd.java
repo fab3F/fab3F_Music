@@ -37,8 +37,9 @@ public class AutoPlayMusicCmd implements ServerCommand {
 
 
         GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
-        musicManager.scheduler.lastUsedTextChannel = e.getChannel().asTextChannel();
+        musicManager.scheduler.getLastPlaying().channel = e.getChannel().asTextChannel();
         boolean autoplay = musicManager.scheduler.toogleAutoPlay();
+
         if(autoplay){
             e.reply("Autoplay wurde aktiviert. Nachdem die Wiedergabeliste abgespielt wurde, werden empfohlene Songs abgespielt.").queue();
         }else{

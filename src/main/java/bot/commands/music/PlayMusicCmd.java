@@ -30,6 +30,10 @@ public class PlayMusicCmd implements ServerCommand {
             final AudioManager audioManager = g.getAudioManager();
             final VoiceChannel memberChannel = e.getMember().getVoiceState().getChannel().asVoiceChannel();
             audioManager.openAudioConnection(memberChannel);
+            e.getChannel().sendMessage("""
+                    INFORMATION: Lautstärke wurde angepasst. Die individuelle Lautstärke des Bots muss eventuell erhöht werden.
+                    Normalisierung der Lautstärke ist jetzt verfügbar (Noch nicht final). Der Bot passt die Lautstärke automatisch an die Durchschnittslautstärke des Videos an.
+                    Aktivierung mit `/config` -> `volumenormalization` -> `True`""").queue();
         }
 
 

@@ -1,8 +1,6 @@
 package bot.music;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.UUID;
 
 import com.grack.nanojson.JsonWriter;
@@ -40,7 +38,8 @@ public class Oauth2Handler {
 
     public void setToken(String token){
         this.oauth2refreshtoken = token;
-        Bot.instance.configWorker.setBotConfig("oauth2refreshtoken", token);
+        if(!Bot.instance.configWorker.setBotConfig("oauth2refreshtoken", token))
+            Main.error("Error when setting the oauth2refreshtoken into BotConfig.");
     }
 
     public String getRefreshToken(){
@@ -68,6 +67,7 @@ public class Oauth2Handler {
             CloseableHttpResponse response = httpInterface.execute(request)) {
             HttpClientTools.assertSuccessWithContent(response, "oauth2 token fetch");
             JsonObject parsed = JsonParser.object().from(response.getEntity().getContent());
+            System.out.println(parsed);
             return !parsed.has("error") || parsed.isNull("error");
         } catch (IOException | JsonParserException e) {
             Main.error("Exception when validating Refresh Token: " + e.getMessage());

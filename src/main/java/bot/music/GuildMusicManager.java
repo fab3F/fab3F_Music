@@ -14,7 +14,6 @@ public class GuildMusicManager implements Runnable {
     private boolean exitThread;
 
     private final Guild guild;
-    private int volume;
     private final EqualizerFactory equalizer;
     private static final float[] BASS_BOOST = {1f, 1f, 1f};
 
@@ -30,8 +29,7 @@ public class GuildMusicManager implements Runnable {
         this.sendHandler = new AudioPlayerSendHandler(this.audioPlayer);
 
         this.guild = guild;
-        this.volume = Integer.parseInt(Bot.instance.configWorker.getServerConfig(guild.getId(), "defaultVolume").get(0));
-        this.audioPlayer.setVolume(this.volume);
+        this.setVolume(Integer.parseInt(Bot.instance.configWorker.getServerConfig(guild.getId(), "defaultVolume").get(0)));
 
         this.equalizer = new EqualizerFactory();
         this.audioPlayer.setFilterFactory(this.equalizer);
@@ -68,13 +66,13 @@ public class GuildMusicManager implements Runnable {
         this.scheduler.clearQueue();
     }
 
+
     public void setVolume(int volume){
-        this.volume = volume;
-        this.audioPlayer.setVolume(this.volume);
+        this.audioPlayer.setVolume(volume);
     }
 
     public int getVolume(){
-        return this.volume;
+        return this.audioPlayer.getVolume();
     }
 
 

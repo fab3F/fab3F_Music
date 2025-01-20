@@ -72,7 +72,7 @@ public class LinkConverter extends SpotifyWorker{
             Main.debug("Loading YT List: " + input);
             e.getHook().sendMessage("YouTube Playlist wird geladen und zur Wiedergabeliste hinzugefügt, dies kann einige Sekunden dauern: " + input).queue();
 
-            this.loadYouTubePlaylist(input, e.getUser(), e.getChannel().asTextChannel(), musicManager);
+            this.loadYouTubePlaylist(input, e.getUser().getName(), e.getChannel().asTextChannel(), musicManager, false);
             // result is handeled in function
         }
 
@@ -183,10 +183,11 @@ public class LinkConverter extends SpotifyWorker{
         int popularity;
         try{
             popularity = Integer.parseInt(Bot.instance.configWorker.getServerConfig(channel.getGuild().getId(), "autoplaypopularity").get(0));
+            popularity = Math.min(100, Math.max(0, popularity));
         }catch (NumberFormatException ex){
             popularity = 35;
         }
-        List<String> l = loadSpotifyRecommended(name, Math.min(100, Math.max(0, popularity)));
+        List<String> l = loadSpotifyRecommended(name, popularity);
         TrackScheduler scheduler = Bot.instance.getPM().getGuildMusicManager(channel.getGuild()).scheduler;
         if(error(channel, l.get(0))) {
             if (scheduler.isAutoplay) {
@@ -201,7 +202,7 @@ public class LinkConverter extends SpotifyWorker{
     }
 
 
-    private void loadYouTubePlaylist(String link, User user, TextChannel channel, GuildMusicManager musicManager) {
+    public void loadYouTubePlaylist(String link, String username, TextChannel channel, GuildMusicManager musicManager, boolean isAutoplayRequest) {
 
         Bot.instance.getPM().getAudioPlayerManager().loadItemOrdered(musicManager, link, new AudioLoadResultHandler() {
 
@@ -215,10 +216,12 @@ public class LinkConverter extends SpotifyWorker{
                 String msg;
                 final List<AudioTrack> tracks = audioPlaylist.getTracks();
                 if (!tracks.isEmpty()) {
+                    if(isAutoplayRequest)
+                        tracks.remove(0);
                     for (AudioTrack track : tracks) {
-                        musicManager.scheduler.queue(new MusicSong(track, channel, user.getName()), false);
+                        musicManager.scheduler.queue(new MusicSong(track, channel, username), false);
                     }
-                    msg = "YouTube Playlist wurde fertig geladen.";
+                    msg = isAutoplayRequest ? "_AUTO" : "YouTube Playlist wurde fertig geladen.";
                 } else {
                     msg = ERROR_PREFIX + "ERROR 62: YouTube Playlist should be loaded but AudioPlaylist was empty.";
                 }
@@ -241,7 +244,7 @@ public class LinkConverter extends SpotifyWorker{
         if (msg.startsWith(ERROR_PREFIX)) {
             channel.sendMessage(msg.replace(ERROR_PREFIX, "")).queue();
             Main.debug("ERROR MESSAGE: " + msg);
-        } else {
+        } else if(!msg.startsWith("_AUTO")) {
             channel.sendMessage(msg).queue();
         }
     }

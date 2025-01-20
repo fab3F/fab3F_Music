@@ -20,7 +20,7 @@ public class PlayerManager {
 
     public PlayerManager() {
         YoutubeAudioSourceManager source = new YoutubeAudioSourceManager(true);
-        source.useOauth2(new Oauth2Handler().getRefreshToken(), true);
+        //source.useOauth2(new Oauth2Handler().getRefreshToken(), true);
         audioPlayerManager.registerSourceManager(source);
         AudioSourceManagers.registerRemoteSources(audioPlayerManager);
         AudioSourceManagers.registerLocalSource(audioPlayerManager);

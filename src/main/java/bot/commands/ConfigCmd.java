@@ -66,11 +66,11 @@ public class ConfigCmd implements ServerCommand{
     private MessageEmbed printCurrent(String guildId){
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("Konfiguration");
-        eb.setDescription("Dies sind die aktuellen Einstellungen des Bots:");
+        eb.setDescription("Dies sind die aktuellen Einstellungen des Bots für diesen Server:");
         eb.setColor(Color.CYAN);
         for(Option option : this.getOptions()){
             List<String> values = Bot.instance.configWorker.getServerConfig(guildId, option.name);
-            String value = values.size() <= 1 ? values.get(0) : values.toString();
+            String value = values.isEmpty() ? "NOT SET" : (values.size() == 1 ? values.get(0) : values.toString());
             eb.addField(option.name, value, false);
         }
         eb.setFooter("Befehl '/config'");
@@ -112,8 +112,9 @@ public class ConfigCmd implements ServerCommand{
     public Option[] getOptions() {
         return new Option[]{
                 new Option(OptionType.STRING, "defaultautoplaysong", "Standardmäßger Song für Autoplay", false),
-                new Option(OptionType.INTEGER, "defaultvolume", "Standardmäßige Lautstärke des Bots (Wert zwischen 0 und 100)", false),
-                new Option(OptionType.INTEGER, "autoplaypopularity", "Mindeste Beliebtheit von Autoplay Songs (Wert zwischen 0 und 100)", false)
+                new Option(OptionType.INTEGER, "defaultvolume", "Standardmäßige Lautstärke des Bots (Wert zwischen 0 und 100, Empfohlen: 50)", false),
+                new Option(OptionType.INTEGER, "autoplaypopularity", "Mindeste Beliebtheit von Autoplay Songs (Wert zwischen 0 und 100)", false),
+                new Option(OptionType.BOOLEAN, "volumenormalization", "Automatische Normalisierung der Lautstärke", false)
         };
     }
 }

@@ -78,10 +78,13 @@ public class QueueMusicCmd implements ServerCommand {
                 url = (song.url.startsWith("ytsearch:") ? general.SyIO.replaceLast(song.url.replaceFirst("ytsearch:", ""), " audio", "") : song.url);
                 if (url.length() > 45) url = url.substring(0, 42) + "...";
             }
-            sb.append("`").append(i).append(".` ").append(url).append("\n");
+            if(sb.toString().length() + url.length() + 12 < 1024) {
+                sb.append("`").append(i).append(".` ").append(url).append("\n");
+            }else{
+                break;
+            }
             i++;
         }
-
         eb.addField("Als nächstes:", sb.toString(), false);
 
         length += (size - loaded) * 180000;

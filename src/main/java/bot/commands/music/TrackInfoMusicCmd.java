@@ -37,7 +37,7 @@ public class TrackInfoMusicCmd implements ServerCommand {
 
         String description;
         if(last.user.equalsIgnoreCase(Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0))){
-            description = "Dieser Song wurde von Spotify Autoplay ausgewählt.";
+            description = "Dieser Song wurde von YouTube Autoplay ausgewählt.";
         }else{
             try {
                 description = "Hinzugefügt von: " + e.getGuild().getMembersByName(last.user, true).get(0).getAsMention();

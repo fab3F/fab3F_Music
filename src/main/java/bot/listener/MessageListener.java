@@ -1,6 +1,7 @@
 package bot.listener;
 
 import bot.Bot;
+import bot.music.LoudnessHandler;
 import general.Main;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -25,7 +26,12 @@ public class MessageListener extends ListenerAdapter {
                     event.getChannel().sendMessage("Restarting!").queue();
                     Main.main.restartBot();
                 }
+            } else if (msg.startsWith("setvolumescale") && parts.length > 1) {
+                String scale = parts[1];
+                LoudnessHandler.scale = Double.parseDouble(scale);
+                event.getChannel().sendMessage("Set to: " + scale).queue();
             }
+
         }
     }
 
