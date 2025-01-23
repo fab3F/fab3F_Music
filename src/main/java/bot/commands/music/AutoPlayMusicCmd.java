@@ -3,9 +3,17 @@ package bot.commands.music;
 import bot.Bot;
 import bot.commands.ServerCommand;
 import bot.music.GuildMusicManager;
+import bot.music.MusicSong;
 import bot.music.VoiceStates;
 import bot.permissionsystem.BotPermission;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackState;
+import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.managers.AudioManager;
@@ -37,7 +45,9 @@ public class AutoPlayMusicCmd implements ServerCommand {
 
 
         GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
-        musicManager.scheduler.getLastPlaying().channel = e.getChannel().asTextChannel();
+        if(musicManager.scheduler.getLastPlaying() == null){
+            musicManager.scheduler.getLastPlaying(placeholerSong(e.getChannel().asTextChannel(), e.getUser().getName()));
+        }
         boolean autoplay = musicManager.scheduler.toogleAutoPlay();
 
         if(autoplay){
@@ -75,5 +85,9 @@ public class AutoPlayMusicCmd implements ServerCommand {
     @Override
     public String getDescription() {
         return "Spiele automatisch weitere Songs ab, sobald die Wiedergabeliste leer ist!";
+    }
+
+    private static MusicSong placeholerSong(TextChannel channel, String username){
+        return new MusicSong("STARTNEWAUTOPLAY", channel, username);
     }
 }
