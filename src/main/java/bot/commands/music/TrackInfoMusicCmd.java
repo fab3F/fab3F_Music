@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 import java.awt.*;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 
 public class TrackInfoMusicCmd implements ServerCommand {
@@ -57,6 +58,7 @@ public class TrackInfoMusicCmd implements ServerCommand {
         eb.setDescription(description);
         eb.addField("Uploader", "**`" + last.getTrack().getInfo().author + "`**", true);
         eb.addField("Länge", "**`" + length + "`**", true);
+        eb.addField("Lautstärke", "**`" + musicManager.getVolume() + "`**", true);
         if(matcher.find()){
             eb.setThumbnail("https://img.youtube.com/vi/" + matcher.group(1) + "/0.jpg");
         }

@@ -40,7 +40,7 @@ public class LoudnessHandler {
     public static double calculateVolumeMultiplierV2(String videoId){
         double loudness = getLoudness(videoId);
         double rawMultiplier = Math.pow(10, -loudness/20);
-        double minMultiplier = 0.5; // Minimum volume multiplier
+        double minMultiplier = 0.65; // Minimum volume multiplier
         double maxMultiplier = 2.5; // Maximum volume multiplier
         return Math.min(maxMultiplier, Math.max(minMultiplier, rawMultiplier));
     }

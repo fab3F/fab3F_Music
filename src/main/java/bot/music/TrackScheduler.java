@@ -106,7 +106,6 @@ public class TrackScheduler extends AudioEventAdapter {
             double multiplier = LoudnessHandler.calculateVolumeMultiplierV2(id);
             int volume = (int) (defaultvolume * multiplier);
             this.player.setVolume(volume);
-            song.channel.sendMessage("New volume: " + volume).queue();
         }
     }
 
@@ -156,8 +155,6 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public boolean toogleAutoPlay(){
         this.isAutoplay = !isAutoplay;
-        if (!isAutoplay)
-            searchingForAutoplay = false;
         return this.isAutoplay;
     }
 
@@ -181,12 +178,12 @@ public class TrackScheduler extends AudioEventAdapter {
                     return;
                 }else{
                     this.lastPlayedSongs.remove(0);
+                    this.searchingForAutoplay = false;
                 }
             }else{
                 String vId = lastPlayed.getTrack().getInfo().uri.replaceAll("^(?:https?://)?(?:www\\.)?(?:youtube\\.com/.*v=|youtu\\.be/)([a-zA-Z0-9_-]{11}).*$", "$1");
                 Bot.instance.getPM().linkConverter.loadYouTubePlaylist("https://www.youtube.com/watch?v=" + vId + "&list=RD" + vId, Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0), lastPlayed.channel, Bot.instance.getPM().getGuildMusicManager(lastPlayed.channel.getGuild()), true);
             }
-            this.searchingForAutoplay = false;
             loadNextFewSongs();
         }
     }

@@ -197,7 +197,11 @@ public class LinkConverter extends SpotifyWorker{
                     for (AudioTrack track : tracks) {
                         musicManager.scheduler.queue(new MusicSong(track, channel, username), false);
                     }
-                    msg = isAutoplayRequest ? "_AUTO" : "YouTube Playlist wurde fertig geladen.";
+                    msg = "YouTube Playlist wurde fertig geladen.";
+                    if(isAutoplayRequest){
+                        msg = "_AUTO";
+                        musicManager.scheduler.searchingForAutoplay = false;
+                    }
                 } else {
                     msg = ERROR_PREFIX + "ERROR 62: YouTube Playlist should be loaded but AudioPlaylist was empty.";
                 }
@@ -213,6 +217,7 @@ public class LinkConverter extends SpotifyWorker{
             public void loadFailed(FriendlyException ex) {
                 if(isAutoplayRequest){
                     musicManager.scheduler.isAutoplay = false;
+                    musicManager.scheduler.searchingForAutoplay = false;
                     handleYTListLoadingResult(channel, ERROR_PREFIX + "ERROR 63: Kein AutoPlay für diesen Song verfügbar. AutoPlay wurde deaktiviert. Eingabe: " + link);
                 }
                 else
