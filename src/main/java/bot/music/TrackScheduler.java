@@ -24,7 +24,7 @@ public class TrackScheduler extends AudioEventAdapter {
     private final List<MusicSong> lastPlayedSongs = new ArrayList<>();
     private boolean isRepeat = false;
     public boolean isAutoplay = false;
-    private boolean searchingForAutoplay = false;
+    public boolean searchingForAutoplay = false;
     private final int preloaded = Integer.parseInt(Bot.instance.configWorker.getBotConfig("preloadedSongs").get(0));
 
 
@@ -156,20 +156,37 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public boolean toogleAutoPlay(){
         this.isAutoplay = !isAutoplay;
+        if (!isAutoplay)
+            searchingForAutoplay = false;
         return this.isAutoplay;
     }
 
     public void startAutoPlay(){
-        if(this.queue.isEmpty() && !searchingForAutoplay){
-            searchingForAutoplay = true;
+        if(this.queue.isEmpty() && !this.searchingForAutoplay && this.isAutoplay){
+            this.searchingForAutoplay = true;
 
-            if(this.lastPlayedSongs.get(this.lastPlayedSongs.size()-1).url.equals("STARTDEFAULTAUTOPLAY")){
-                Bot.instance.getPM().linkConverter.loadSimilarSongs(Bot.instance.configWorker.getServerConfig(this.lastPlayedSongs.get(lastPlayedSongs.size()-1).channel.getGuild().getId(), "defaultautoplaysong").get(0), this.lastPlayedSongs.get(lastPlayedSongs.size()-1).channel);
-            }else{
-                String vId = this.lastPlayedSongs.get(lastPlayedSongs.size()-1).getTrack().getInfo().uri.replaceAll("^(?:https?://)?(?:www\\.)?(?:youtube\\.com/.*v=|youtu\\.be/)([a-zA-Z0-9_-]{11}).*$", "$1");
-                Bot.instance.getPM().linkConverter.loadYouTubePlaylist("https://www.youtube.com/watch?v=" + vId + "&list=RD" + vId, Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0), this.lastPlayedSongs.get(lastPlayedSongs.size()-1).channel, Bot.instance.getPM().getGuildMusicManager(this.lastPlayedSongs.get(lastPlayedSongs.size()-1).channel.getGuild()), true);
+            if(this.lastPlayedSongs.get(lastPlayedSongs.size()-1) == null){
+                Main.error("AutoPlay Error. LastPlayedSong is null.");
+                this.isAutoplay = false;
+                this.searchingForAutoplay = false;
+                return;
             }
-            searchingForAutoplay = false;
+            MusicSong lastPlayed = this.lastPlayedSongs.get(this.lastPlayedSongs.size()-1);
+            if(lastPlayed.url != null && lastPlayed.url.equals("STARTNEWAUTOPLAY")){
+                if(!AutoPlayHandler.loadTop30(lastPlayed.channel)){
+                    Main.debug("Error when loading Top30 with lastFM.");
+                    this.isAutoplay = false;
+                    this.searchingForAutoplay = false;
+                    lastPlayed.channel.sendMessage("Beim Laden der Charts ist ein Fehler aufgetreten. AutoPlay wurde deaktiviert.").queue();
+                    return;
+                }else{
+                    this.lastPlayedSongs.remove(0);
+                }
+            }else{
+                String vId = lastPlayed.getTrack().getInfo().uri.replaceAll("^(?:https?://)?(?:www\\.)?(?:youtube\\.com/.*v=|youtu\\.be/)([a-zA-Z0-9_-]{11}).*$", "$1");
+                Bot.instance.getPM().linkConverter.loadYouTubePlaylist("https://www.youtube.com/watch?v=" + vId + "&list=RD" + vId, Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0), lastPlayed.channel, Bot.instance.getPM().getGuildMusicManager(lastPlayed.channel.getGuild()), true);
+            }
+            this.searchingForAutoplay = false;
             loadNextFewSongs();
         }
     }

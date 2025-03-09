@@ -178,30 +178,6 @@ public class LinkConverter extends SpotifyWorker{
     }
 
 
-    public void loadSimilarSongs(String name, TextChannel channel){
-        Main.debug("Loading Similar Songs: " + name + " REPAIRED --> " + (name = repairTextSearch(name)));
-        int popularity;
-        try{
-            popularity = Integer.parseInt(Bot.instance.configWorker.getServerConfig(channel.getGuild().getId(), "autoplaypopularity").get(0));
-            popularity = Math.min(100, Math.max(0, popularity));
-        }catch (NumberFormatException ex){
-            popularity = 35;
-        }
-        List<String> l = loadSpotifyRecommended(name, popularity);
-        TrackScheduler scheduler = Bot.instance.getPM().getGuildMusicManager(channel.getGuild()).scheduler;
-        if(error(channel, l.get(0))) {
-            if (scheduler.isAutoplay) {
-                scheduler.toogleAutoPlay();
-            }
-            return;
-        }
-        String autoPlayerName = Bot.instance.configWorker.getBotConfig("autoPlayerName").get(0);
-        for(String s : l){
-            scheduler.queue(new MusicSong("ytsearch:" + s + " audio", channel, autoPlayerName), false);
-        }
-    }
-
-
     public void loadYouTubePlaylist(String link, String username, TextChannel channel, GuildMusicManager musicManager, boolean isAutoplayRequest) {
 
         Bot.instance.getPM().getAudioPlayerManager().loadItemOrdered(musicManager, link, new AudioLoadResultHandler() {
@@ -235,7 +211,12 @@ public class LinkConverter extends SpotifyWorker{
 
             @Override
             public void loadFailed(FriendlyException ex) {
-                handleYTListLoadingResult(channel, "Beim Laden einer YouTube Playlist ist ein Fehler aufgetreten. Stelle sicher, dass sie nicht auf privat gestellt ist. Eingabe: " + link);
+                if(isAutoplayRequest){
+                    musicManager.scheduler.isAutoplay = false;
+                    handleYTListLoadingResult(channel, ERROR_PREFIX + "ERROR 63: Kein AutoPlay für diesen Song verfügbar. AutoPlay wurde deaktiviert. Eingabe: " + link);
+                }
+                else
+                    handleYTListLoadingResult(channel, "Beim Laden einer YouTube Playlist ist ein Fehler aufgetreten. Stelle sicher, dass sie nicht auf privat gestellt ist. Eingabe: " + link);
             }
         });
     }

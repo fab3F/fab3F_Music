@@ -24,7 +24,7 @@ public class TrackInfoMusicCmd implements ServerCommand {
         GuildMusicManager musicManager = Bot.instance.getPM().getGuildMusicManager(e.getGuild());
 
         MusicSong last = musicManager.scheduler.getLastPlaying();
-        if(last == null)
+        if(last == null || musicManager.audioPlayer.getPlayingTrack() == null)
             return false;
 
 
