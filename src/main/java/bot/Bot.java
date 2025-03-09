@@ -24,7 +24,8 @@ public class Bot {
     public ConfigWorker configWorker;
     public final boolean debug;
 
-    public long lastMusicPlayerManagerRestart;
+    private long lastMusicPlayerManagerRestart;
+    private ScheduledExecutorService schedulerService;
 
     private final CommandManager commandManager;
     private final ShardManager shardManager;
@@ -74,14 +75,15 @@ public class Bot {
     public void destroy(){
         this.playerManager.closeEverything();
         this.playerManager = null;
+        this.schedulerService.shutdown();
 
         this.getShardManager().setStatus(OnlineStatus.OFFLINE);
         this.getShardManager().shutdown();
     }
 
     private void startMusicPlayerManagerRestartChecker(){
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(() -> {
+        schedulerService = Executors.newScheduledThreadPool(1);
+        schedulerService.scheduleAtFixedRate(() -> {
             long current = System.currentTimeMillis();
             if (current - (24 * 60 * 60 * 1000) > this.lastMusicPlayerManagerRestart) {
                 if(this.playerManager.canRestart()){

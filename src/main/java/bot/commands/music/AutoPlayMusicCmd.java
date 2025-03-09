@@ -84,7 +84,7 @@ public class AutoPlayMusicCmd implements ServerCommand {
 
     @Override
     public String getDescription() {
-        return "Spiele automatisch weitere Songs ab, sobald die Wiedergabeliste leer ist oder höre die aktuellen Charts, wenn nichts vorgegeben wurde!";
+        return "Spiele automatisch weitere Songs ab, sobald die Wiedergabeliste leer ist oder höre aktuelle Charts!";
     }
 
     private static MusicSong placeholerSong(TextChannel channel, String username){
