@@ -67,8 +67,10 @@ public class PlayerManager {
         this.audioPlayerManager.shutdown();
         this.audioPlayerManager = null;
 
-        // this = null;
+    }
 
+    public boolean canRestart(){
+        return this.guildMusicManagers.isEmpty();
     }
 
     public AudioPlayerManager getAudioPlayerManager(){return this.audioPlayerManager;}

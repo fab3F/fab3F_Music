@@ -6,6 +6,7 @@ import bot.listener.SlashCommandListener;
 import bot.music.PlayerManager;
 import bot.permissionsystem.PermissionWorker;
 import general.ConfigWorker;
+import general.Main;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -13,11 +14,17 @@ import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 public class Bot {
 
     public static Bot instance;
     public ConfigWorker configWorker;
     public final boolean debug;
+
+    public long lastMusicPlayerManagerRestart;
 
     private final CommandManager commandManager;
     private final ShardManager shardManager;
@@ -27,6 +34,7 @@ public class Bot {
     public PermissionWorker pW;
 
     public Bot(boolean debug, String token, ConfigWorker configWorker){
+        lastMusicPlayerManagerRestart = System.currentTimeMillis();
         instance = this;
         this.commandManager = new CommandManager();
         this.configWorker = configWorker;
@@ -45,6 +53,8 @@ public class Bot {
 
         this.playerManager = new PlayerManager();
         this.pW = new PermissionWorker();
+
+        startMusicPlayerManagerRestartChecker();
     }
 
     public CommandManager getCommandManager(){return this.commandManager;}
@@ -67,6 +77,21 @@ public class Bot {
 
         this.getShardManager().setStatus(OnlineStatus.OFFLINE);
         this.getShardManager().shutdown();
+    }
 
+    private void startMusicPlayerManagerRestartChecker(){
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> {
+            long current = System.currentTimeMillis();
+            if (current - (24 * 60 * 60 * 1000) > this.lastMusicPlayerManagerRestart) {
+                if(this.playerManager.canRestart()){
+                    this.playerManager.closeEverything();
+                    this.playerManager = null;
+                    this.playerManager = new PlayerManager();
+                    this.lastMusicPlayerManagerRestart = current;
+                    Main.debug("Restarted PlayerManager.");
+                }
+            }
+        }, 0, 15, TimeUnit.MINUTES);
     }
 }
