@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Main {
 
-    public static final String version = "37";
+    public static final String version = "38";
     private static final String configPath = "config";
 
     public static Main main;

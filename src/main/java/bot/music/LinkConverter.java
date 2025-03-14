@@ -76,32 +76,28 @@ public class LinkConverter extends SpotifyWorker{
             // result is handeled in function
         }
 
-
-        else if(input.startsWith("https") && input.contains("spotify.com/") && input.contains("/track/")){
-            Main.debug("Loading Spotify Song: " + input);
-
-            String song = this.loadSpotifyLink(input).get(0);
-            if(error(e.getHook(), song))
-                return;
-
-            musicManager.scheduler.queue(new MusicSong("ytsearch:" + song + " audio", e.getChannel().asTextChannel(), e.getUser().getName()), playAsFirst);
-            e.getHook().sendMessage("Spotify Song zur Wiedergabeliste hinzugefügt: " + input).queue();
-        }
-
-
-        else if(input.startsWith("https") && input.contains("spotify.com/") && input.contains("/playlist/")){
-            Main.debug("Loading Spotify List: " + input);
-
-            e.getHook().sendMessage("Spotify Playlist wird geladen und zur Wiedergabeliste hinzugefügt, dies kann einige Sekunden dauern: " + input).queue();
+        else if(input.startsWith("https") && input.contains("spotify.com/")){
+            Main.debug("Loading Spotify Link: " + input);
+            if(input.contains("/playlist/") || input.contains("/album/")){
+                e.getChannel().sendMessage("Spotify Liste wird geladen, dies kann einige Sekunden dauern.").queue();
+            }
             List<String> list = this.loadSpotifyLink(input);
-
             if(error(e.getChannel().asTextChannel(), list.get(0)))
                 return;
-
-            for(String name : list){
-                musicManager.scheduler.queue(new MusicSong("ytsearch:" + name + " audio", e.getChannel().asTextChannel(), e.getUser().getName()), false);
+            if(list.size() <= 1){
+                musicManager.scheduler.queue(new MusicSong("ytsearch:" + list.get(0) + " audio", e.getChannel().asTextChannel(), e.getUser().getName()), playAsFirst);
+            } else{
+                for(String name : list){
+                    musicManager.scheduler.queue(new MusicSong("ytsearch:" + name + " audio", e.getChannel().asTextChannel(), e.getUser().getName()), false);
+                }
             }
-            e.getChannel().sendMessage("Spotify Playlist wurde fertig geladen.").queue();
+            e.getHook().sendMessage("Spotify Link wurde zu Wiedergabeliste hinzugefügt: " + input).queue();
+        }
+
+        else if(input.startsWith("https")){
+            Main.debug("Unknown url format: " + input);
+            e.getHook().sendMessage("Unbekanntes URL-Format. Bitte versuche etwas anderes.").queue();
+            return;
         }
 
         else{

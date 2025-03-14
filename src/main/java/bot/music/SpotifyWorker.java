@@ -6,6 +6,7 @@ import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
 import se.michaelthelin.spotify.model_objects.specification.*;
 import se.michaelthelin.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
+import se.michaelthelin.spotify.requests.data.albums.GetAlbumRequest;
 import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistRequest;
 import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 
@@ -69,6 +70,9 @@ public class SpotifyWorker {
         Pattern playlistPattern = Pattern.compile("playlist/([a-zA-Z0-9]+)");
         Matcher playlistMatcher = playlistPattern.matcher(link);
 
+        Pattern albumPattern = Pattern.compile("album/([a-zA-Z0-9]+)");
+        Matcher albumMatcher = albumPattern.matcher(link);
+
         if (trackMatcher.find()) {
             String trackId = trackMatcher.group(1);
             listOfTracks.add(this.getSpotifyArtistAndName(trackId));
@@ -95,8 +99,30 @@ public class SpotifyWorker {
                 listOfTracks.add(ERROR_PREFIX + "ERROR 46: No track from Spotify playlist could be loaded.");
             }
             return listOfTracks;
+
+        } else if (albumMatcher.find()) {
+            String playlistId = albumMatcher.group(1);
+            GetAlbumRequest albumRequest = spotifyApi.getAlbum(playlistId).build();
+            Album album;
+            try{
+                album = albumRequest.execute();
+            }catch (IOException | ParseException | SpotifyWebApiException e){
+                listOfTracks.add(ERROR_PREFIX + "ERROR 48: Spotify album request was not successful.");
+                return listOfTracks;
+            }
+            Paging<TrackSimplified> albumPaging = album.getTracks();
+            TrackSimplified[] albumTracks = albumPaging.getItems();
+
+            for (TrackSimplified track : albumTracks) {
+                listOfTracks.add(track.getName() + " " + track.getArtists()[0].getName());
+            }
+            if(listOfTracks.isEmpty()){
+                listOfTracks.add(ERROR_PREFIX + "ERROR 49: No track from Spotify album could be loaded.");
+            }
+            return listOfTracks;
+
         } else {
-            listOfTracks.add(ERROR_PREFIX + "ERROR 47: Spotify link was not valid.");
+            listOfTracks.add(ERROR_PREFIX + "ERROR 47: Spotify link was not valid. Able to load: Track, Playlist, Album");
             return listOfTracks;
         }
 
