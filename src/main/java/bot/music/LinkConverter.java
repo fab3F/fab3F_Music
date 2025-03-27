@@ -8,6 +8,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import general.Main;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
@@ -17,6 +18,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -79,19 +81,14 @@ public class LinkConverter extends SpotifyWorker{
         else if(input.startsWith("https") && input.contains("spotify.com/")){
             Main.debug("Loading Spotify Link: " + input);
             if(input.contains("/playlist/") || input.contains("/album/")){
-                e.getChannel().sendMessage("Spotify Liste wird geladen, dies kann einige Sekunden dauern.").queue();
+                String finalInput = input;
+                e.getChannel().sendMessage("Spotify Liste wird geladen, dies kann einige Sekunden dauern.").queue(sentMessage -> {
+                    this.loadSpotify(finalInput, e, sentMessage.getId(), musicManager, playAsFirst);
+                });
+            } else {
+                this.loadSpotify(input, e, "-...-", musicManager, playAsFirst);
             }
-            List<String> list = this.loadSpotifyLink(input);
-            if(error(e.getChannel().asTextChannel(), list.get(0)))
-                return;
-            if(list.size() <= 1){
-                musicManager.scheduler.queue(new MusicSong("ytsearch:" + list.get(0) + " audio", e.getChannel().asTextChannel(), e.getUser().getName()), playAsFirst);
-            } else{
-                for(String name : list){
-                    musicManager.scheduler.queue(new MusicSong("ytsearch:" + name + " audio", e.getChannel().asTextChannel(), e.getUser().getName()), false);
-                }
-            }
-            e.getHook().sendMessage("Spotify Link wurde zu Wiedergabeliste hinzugefügt: " + input).queue();
+            // result is handeled in function
         }
 
         else if(input.startsWith("https")){
@@ -173,6 +170,22 @@ public class LinkConverter extends SpotifyWorker{
         }
     }
 
+    private void loadSpotify(String input, SlashCommandInteractionEvent e, String msgId, GuildMusicManager musicManager, boolean playAsFirst){
+        List<String> list = this.loadSpotifyLink(input);
+        if(error(e.getChannel().asTextChannel(), list.get(0)))
+            return;
+        if(list.size() <= 1){
+            musicManager.scheduler.queue(new MusicSong("ytsearch:" + list.get(0) + " audio", e.getChannel().asTextChannel(), e.getUser().getName()), playAsFirst);
+        } else{
+            for(String name : list){
+                musicManager.scheduler.queue(new MusicSong("ytsearch:" + name + " audio", e.getChannel().asTextChannel(), e.getUser().getName()), false);
+            }
+        }
+        if(!msgId.equals("-...-")){
+            e.getChannel().deleteMessageById(msgId).queue();
+        }
+        e.getHook().sendMessage("Spotify Link wurde zu Wiedergabeliste hinzugefügt: " + input).queue();
+    }
 
     public void loadYouTubePlaylist(String link, String username, TextChannel channel, GuildMusicManager musicManager, boolean isAutoplayRequest) {
 

@@ -31,7 +31,6 @@ public class MessageListener extends ListenerAdapter {
                 LoudnessHandler.scale = Double.parseDouble(scale);
                 event.getChannel().sendMessage("Set to: " + scale).queue();
             }
-
         }
     }
 
