@@ -68,18 +68,32 @@ public class CommandManager {
 
         if(e.getGuild() != null){
             BotPermission neededBotPerm = cmd.getBotPermission();
-            if(!Bot.instance.pW.hasPermission(e.getGuild().getSelfMember(), neededBotPerm)){
-                e.reply("Dem Bot fehlt eine der erforderlichen Berechtigungen: " + neededBotPerm.name() + ":\n" + neededBotPerm.getDescription()).setEphemeral(true).queue();
+            String permCheck1 = Bot.instance.pW.hasPermission(e.getGuild().getSelfMember(), neededBotPerm);
+            if(!permCheck1.equals("_TRUE_")){
+                e.reply("Dem Bot fehlt die Berechtigungen:\n" + permCheck1.replaceFirst("_FALSE_", "")).setEphemeral(true).queue();
                 return;
             }
         }
 
 
         BotPermission neededUserPerm = cmd.getUserPermission();
-        if(!Bot.instance.pW.hasPermission(e.getMember(), neededUserPerm) && !Bot.instance.configWorker.getBotConfig("adminIds").contains(e.getUser().getId())){
-            e.reply("Dir fehlt folgende Berechtigung, um diesen Befehl auszuführen: " + neededUserPerm.name() + " - " + neededUserPerm.getDescription()).setEphemeral(true).queue();
+        String permCheck2 = Bot.instance.pW.hasPermission(e.getMember(), neededUserPerm);
+        if(!permCheck2.equals("_TRUE_") && !Bot.instance.configWorker.getBotConfig("adminIds").contains(e.getUser().getId())){
+            e.reply("Um diesen Befehl auszuführen ist folgende Berechtigungsgruppe erforderlich:\n" +
+                    neededUserPerm.name() + " - " + neededUserPerm.getDescription() + "\n" +
+                    "Folgende Berechtigung(en) fehlen dir: " + permCheck2.replaceFirst("_FALSE_", "")).setEphemeral(true).queue();
             return;
         }
+
+        //Check ob der Bot in diesem Kanal Nachrichten senden kann (da evtl. privater Kanal)
+        if(!e.getChannel().canTalk()){
+            e.reply("Der Bot kann in diesem Kanal keine Nachrichten senden, sondern nur auf Befehle wie diesen hier antworten. Dies kann zum Beispiel daran liegen, dass dies ein privater Kanal ist.\n" +
+                    "Oft ist es aber erforderlich, dass der Bot noch zusätzliche Nachrichten senden kann. Deshalb muss dieser Befehl in einem anderen Kanal ausgeführt werden oder der Bot braucht Zugriff auf diesen Kanal. " +
+                    "Dazu kann man entweder der Rolle des Bots Zugriff auf diesen Kanal geben oder den Bot direkt zu diesem Kanal hinzufügen.").setEphemeral(true).queue();
+            return;
+        }
+
+
 
         if(cmd.getOptions() != null){
             for(ServerCommand.Option option : cmd.getOptions()){

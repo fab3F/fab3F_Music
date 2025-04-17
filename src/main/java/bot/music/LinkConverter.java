@@ -172,7 +172,7 @@ public class LinkConverter extends SpotifyWorker{
 
     private void loadSpotify(String input, SlashCommandInteractionEvent e, String msgId, GuildMusicManager musicManager, boolean playAsFirst){
         List<String> list = this.loadSpotifyLink(input);
-        if(error(e.getChannel().asTextChannel(), list.get(0)))
+        if(error(e.getHook(), list.get(0)))
             return;
         if(list.size() <= 1){
             musicManager.scheduler.queue(new MusicSong("ytsearch:" + list.get(0) + " audio", e.getChannel().asTextChannel(), e.getUser().getName()), playAsFirst);

@@ -10,7 +10,6 @@ public class PermissionConfig {
     public static final Map<BotPermission, Set<Permission>> PERMISSIONS_MAP;
     private static final Permission[] standardPermissions = {
             Permission.VIEW_CHANNEL,
-            Permission.MANAGE_SERVER,
             Permission.MESSAGE_MANAGE,
             Permission.MESSAGE_SEND,
             Permission.MESSAGE_HISTORY,
@@ -53,6 +52,7 @@ public class PermissionConfig {
         return result;
     }
 
+    // Unnötig, da die Beschreibung der Berechtigungen für den Bot nicht abgerufen werden.
     private static void setDescription(BotPermission botPermission){
         StringBuilder sb = new StringBuilder();
         for(Permission permission : PERMISSIONS_MAP.get(botPermission)){

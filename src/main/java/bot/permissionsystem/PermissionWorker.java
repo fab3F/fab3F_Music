@@ -1,5 +1,7 @@
 package bot.permissionsystem;
 
+import general.Main;
+import general.SyIO;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -7,21 +9,20 @@ import java.util.Set;
 
 public class PermissionWorker {
 
-    public boolean hasPermission(Member member, BotPermission botPermission) {
+    public String hasPermission(Member member, BotPermission botPermission) {
         Set<Permission> requiredPermissions = PermissionConfig.PERMISSIONS_MAP.get(botPermission);
         if (requiredPermissions == null) {
-            return false;
+            Main.error("Error 12: requiredPermissions is null for this botPermission: " + botPermission.name());
+            return "_FALSE_Error 12: Der erforderlichen Berechtigungen existieren nicht. Bitte versuche es zu einem späteren Zeitpunkt erneut.";
         }
-        return hasDiscordPermissions(member, requiredPermissions.toArray(new Permission[0]));
-    }
 
-    private boolean hasDiscordPermissions(Member member, Permission... permissions) {
-        for (Permission permission : permissions) {
+        StringBuilder sb = new StringBuilder();
+        for (Permission permission : requiredPermissions.toArray(new Permission[0])) {
             if (!member.hasPermission(permission)) {
-                return false;
+                sb.append(permission).append(", ");
             }
         }
-        return true;
+        return sb.toString().isEmpty() ? "_TRUE_" : "_FALSE_" + SyIO.replaceLast(sb.toString(), ", ", "");
     }
 
 }
